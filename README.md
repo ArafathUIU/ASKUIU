@@ -27,7 +27,7 @@ ASKUIU is a Retrieval-Augmented Generation (RAG) powered intelligent question-an
 ### 🔸 Terminal Output (Flask)
 ![Terminal](tests/ss%20(2).png)
 ![Terminal](tests/ss%20(3).png)
-![Terminal](tests/ss%20(4).png)
+
 
 
 ---
