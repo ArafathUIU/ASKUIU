@@ -1,7 +1,8 @@
+# C:\xampp\htdocs\AskUIU\ASKUIU\app\routes\web.py
 from flask import Blueprint, render_template
 
-web_bp = Blueprint('web', __name__)
+web = Blueprint('web', __name__, template_folder='../../templates')
 
-@web_bp.route('/')
+@web.route('/')
 def index():
     return render_template('index.html')

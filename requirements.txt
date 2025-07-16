@@ -1,0 +1,13 @@
+flask
+python-dotenv
+pandas
+faiss-cpu
+sentence-transformers
+numpy
+langchain
+langchain-community
+openai
+torch
+celery
+redis
+gunicorn

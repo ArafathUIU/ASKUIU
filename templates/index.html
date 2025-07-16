@@ -1,91 +1,108 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ASKUIU - UIU Q&A System</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="/static/style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ASKUIU - Chat Interface</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="/static/style.css" />
+  <link rel="icon" href="/static/favicon.ico" type="image/x-icon" />
 </head>
-<body class="bg-gray-100 font-sans">
-    <div class="particles" id="particles"></div>
-    <div class="container mx-auto max-w-4xl p-4">
-        <!-- Header -->
-        <header class="bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-t-xl p-4 shadow-lg">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-3">
-                    <div class="avatar">
-                        <i class="fas fa-smile-beam"></i>
-                    </div>
-                    <div>
-                        <h1 class="text-xl font-bold">ASKUIU</h1>
-                        <p class="text-xs opacity-80">United International University</p>
-                    </div>
-                </div>
-                <div class="flex space-x-2">
-                    <button class="p-2 rounded-full bg-white bg-opacity-20 hover:bg-opacity-30 transition" aria-label="Settings">
-                        <i class="fas fa-cog"></i>
-                    </button>
-                    <button class="p-2 rounded-full bg-white bg-opacity-20 hover:bg-opacity-30 transition" aria-label="Help">
-                        <i class="fas fa-question-circle"></i>
-                    </button>
-                </div>
-            </div>
-        </header>
 
-        <!-- Chat Container -->
-        <div class="bg-white shadow-lg rounded-b-xl overflow-hidden">
-            <!-- Chat Messages -->
-            <div class="chat-container overflow-y-auto p-4 space-y-4" id="chat-messages" style="height: calc(100vh - 180px);">
-                <!-- Welcome Message -->
-                <div class="flex items-start">
-                    <div class="bg-orange-100 p-3 rounded-full mr-3">
-                        <i class="fas fa-robot text-orange-500 text-xl"></i>
-                    </div>
-                    <div class="message p-4 bot-message">
-                        <p class="font-medium text-orange-800">Hello! I'm ASKUIU, your AI assistant for UIU.</p>
-                        <p class="mt-1 text-gray-700">Ask me anything about UIU's academic rules, syllabi, or campus info. You can type or use the microphone to speak!</p>
-                        <div class="mt-3 flex flex-wrap gap-2">
-                            <button class="suggested-question bg-white text-orange-600 px-3 py-1 rounded-full text-sm border border-orange-200 hover:bg-orange-50 hover:shadow-sm">
-                                What are UIU's academic regulations?
-                            </button>
-                            <button class="suggested-question bg-white text-orange-600 px-3 py-1 rounded-full text-sm border border-orange-200 hover:bg-orange-50 hover:shadow-sm">
-                                How can I contact a faculty member?
-                            </button>
-                            <button class="suggested-question bg-white text-orange-600 px-3 py-1 rounded-full text-sm border border-orange-200 hover:bg-orange-50 hover:shadow-sm">
-                                What's the academic calendar for 2025?
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Input Area -->
-            <div class="border-t border-gray-300 p-4 bg-white">
-                <div class="flex items-center space-x-2">
-                    <button class="p-2 text-gray-500 hover:text-orange-600 rounded-full hover:bg-gray-200" id="mic-button" aria-label="Record voice">
-                        <i class="fas fa-microphone"></i>
-                    </button>
-                    <div class="flex-1 relative">
-                        <textarea id="user-input" rows="1" placeholder="Ask ASKUIU anything..." class="w-full p-3 pr-12 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none" style="min-height: 50px;"></textarea>
-                        <button id="send-button" class="absolute right-3 bottom-3 p-1 bg-orange-500 text-white rounded-full hover:bg-orange-600 transition" aria-label="Send message">
-                            <i class="fas fa-paper-plane text-sm"></i>
-                        </button>
-                    </div>
-                </div>
-                <div class="mt-2 flex justify-between items-center text-xs text-gray-500">
-                    <div>
-                        <span>ASKUIU v1.0 • RAG enabled</span>
-                    </div>
-                    <div class="flex space-x-2">
-                        <button class="hover:text-orange-600">Privacy</button>
-                        <button class="hover:text-orange-600">Feedback</button>
-                    </div>
-                </div>
-            </div>
+<body class="bg-orange-50 h-screen flex flex-col">
+  <!-- Header -->
+  <header class="bg-gradient-to-r from-orange-500 to-orange-600 text-white p-4 shadow-md">
+    <div class="container mx-auto flex justify-between items-center">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-full bg-orange-300 flex items-center justify-center">
+          <i class="fas fa-comment-dots text-orange-700 text-xl"></i>
         </div>
+        <h1 class="text-2xl font-bold">ASKUIU</h1>
+      </div>
+      <div class="flex items-center space-x-4">
+        <button class="p-2 rounded-full hover:bg-orange-400 transition"><i class="fas fa-search"></i></button>
+        <button class="p-2 rounded-full hover:bg-orange-400 transition"><i class="fas fa-ellipsis-v"></i></button>
+      </div>
     </div>
-    <script src="/static/script.js"></script>
+  </header>
+
+  <!-- Chat Body -->
+  <main class="flex-1 container mx-auto max-w-3xl w-full p-4 flex flex-col overflow-hidden">
+    <!-- Chat Box -->
+    <div class="flex flex-col bg-white rounded-lg shadow-md h-full overflow-hidden">
+      <!-- Chat Header -->
+      <div class="p-4 bg-orange-100 border-b border-orange-200 flex items-center">
+        <div class="w-10 h-10 rounded-full bg-orange-300 flex items-center justify-center mr-3">
+          <i class="fas fa-robot text-orange-700"></i>
+        </div>
+        <div>
+          <h3 class="font-semibold text-orange-800">ASKUIU Assistant</h3>
+          <p class="text-xs text-orange-600">
+            <span class="inline-block w-2 h-2 rounded-full bg-green-500 mr-1"></span> Online
+          </p>
+        </div>
+        <div class="ml-auto flex space-x-2">
+          <button class="p-2 rounded-full hover:bg-orange-200"><i class="fas fa-phone-alt text-orange-600"></i></button>
+          <button class="p-2 rounded-full hover:bg-orange-200"><i class="fas fa-video text-orange-600"></i></button>
+          <button class="p-2 rounded-full hover:bg-orange-200"><i class="fas fa-info-circle text-orange-600"></i></button>
+        </div>
+      </div>
+
+      <!-- Messages Area -->
+      <div id="messages-container" class="flex-1 overflow-y-auto p-4 space-y-4 bg-orange-50">
+        <!-- Welcome message -->
+        <div class="flex items-start space-x-2">
+          <div class="w-8 h-8 rounded-full bg-orange-300 flex items-center justify-center">
+            <i class="fas fa-robot text-orange-700 text-sm"></i>
+          </div>
+          <div class="bg-white p-3 rounded-lg shadow border border-orange-100 max-w-md">
+            <p class="text-gray-800">Hello! I'm ASKUIU, your friendly assistant. How can I help you today?</p>
+            <p class="text-xs text-gray-500 mt-1">Today, 10:00 AM</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Typing Indicator -->
+      <div class="typing-indicator hidden px-4 py-2 bg-orange-100">
+        <div class="flex items-center">
+          <div class="w-8 h-8 rounded-full bg-orange-300 flex items-center justify-center mr-2">
+            <i class="fas fa-robot text-orange-700 text-sm"></i>
+          </div>
+          <div class="flex space-x-1">
+            <div class="w-2 h-2 rounded-full bg-orange-500 animate-bounce"></div>
+            <div class="w-2 h-2 rounded-full bg-orange-500 animate-bounce delay-150"></div>
+            <div class="w-2 h-2 rounded-full bg-orange-500 animate-bounce delay-300"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Message Input -->
+      <form id="query-form" class="border-t border-orange-200 bg-white p-3">
+        <div class="flex items-center">
+          <button type="button" class="p-2 rounded-full hover:bg-orange-100 text-orange-600 mr-2">
+            <i class="fas fa-paperclip"></i>
+          </button>
+          <button type="button" class="p-2 rounded-full hover:bg-orange-100 text-orange-600 mr-2">
+            <i class="fas fa-image"></i>
+          </button>
+          <div class="flex-1 relative">
+            <input type="text" id="user_message" name="user_message" placeholder="Type your message..."
+              class="w-full p-3 pr-12 rounded-full border border-orange-200 focus:outline-none focus:ring-2 focus:ring-orange-300"/>
+            <button type="button"
+              class="absolute right-3 top-1/2 transform -translate-y-1/2 p-1 rounded-full hover:bg-orange-100 text-orange-600">
+              <i class="far fa-smile"></i>
+            </button>
+          </div>
+          <button type="submit" id="send-button"
+            class="ml-2 p-3 rounded-full bg-orange-500 text-white hover:bg-orange-600 transition">
+            <i class="fas fa-paper-plane"></i>
+          </button>
+        </div>
+      </form>
+    </div>
+  </main>
+
+  <script src="/static/script.js"></script>
 </body>
 </html>
