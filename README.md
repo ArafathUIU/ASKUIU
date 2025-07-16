@@ -42,6 +42,12 @@ ASKUIU is a Retrieval-Augmented Generation (RAG) powered intelligent question-an
 
 ---
 
+## 📘 License
+
+This project is licensed under the [MIT License](LICENSE).
+
+---
+
 ## ⚙️ Setup Instructions
 
 ```bash
