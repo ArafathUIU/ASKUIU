@@ -3,60 +3,132 @@ document.addEventListener('DOMContentLoaded', function () {
     const messageInput = document.getElementById('user_message');
     const messagesContainer = document.getElementById('messages-container');
     const typingIndicator = document.querySelector('.typing-indicator');
+    const sendButton = document.getElementById('send-button');
+    const themeToggle = document.getElementById('theme-toggle');
+    const quickQuestions = document.getElementById('quick-questions');
 
-    // Function to add a new message
-    function addMessage(text, isUser) {
-        const messageDiv = document.createElement('div');
-        messageDiv.className = `flex mb-4 message-entry ${isUser ? 'justify-end' : 'items-start'}`;
-
-        if (!isUser) {
-            messageDiv.innerHTML = `
-                <div class="w-8 h-8 rounded-full bg-orange-300 flex items-center justify-center mr-2 flex-shrink-0">
-                    <i class="fas fa-robot text-orange-700 text-sm"></i>
-                </div>
-                <div class="max-w-xs md:max-w-md lg:max-w-lg bg-white p-3 rounded-lg shadow-sm border border-orange-100">
-                    <p class="text-gray-800">${text}</p>
-                    <p class="text-xs text-gray-500 mt-1">${getCurrentTime()}</p>
-                </div>
-            `;
-        } else {
-            messageDiv.innerHTML = `
-                <div class="max-w-xs md:max-w-md lg:max-w-lg bg-orange-500 text-white p-3 rounded-lg shadow-sm">
-                    <p>${text}</p>
-                    <p class="text-xs text-orange-100 mt-1">${getCurrentTime()}</p>
-                </div>
-                <div class="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center ml-2 flex-shrink-0">
-                    <i class="fas fa-user text-orange-600 text-sm"></i>
-                </div>
-            `;
+    // Theme handling
+    function initTheme() {
+        const saved = localStorage.getItem('askuiu-theme');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (saved === 'dark' || (!saved && prefersDark)) {
+            document.documentElement.classList.add('dark');
+            updateThemeIcon(true);
         }
-
-        messagesContainer.appendChild(messageDiv);
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
     }
 
-    // Get current time in HH:MM AM/PM format
-    function getCurrentTime() {
+    function updateThemeIcon(isDark) {
+        const icon = themeToggle.querySelector('i');
+        icon.className = isDark ? 'fas fa-sun' : 'fas fa-moon';
+    }
+
+    themeToggle.addEventListener('click', function () {
+        const isDark = document.documentElement.classList.toggle('dark');
+        localStorage.setItem('askuiu-theme', isDark ? 'dark' : 'light');
+        updateThemeIcon(isDark);
+    });
+
+    initTheme();
+
+    // Quick question chips
+    if (quickQuestions) {
+        quickQuestions.addEventListener('click', function (e) {
+            const btn = e.target.closest('.quick-question');
+            if (btn) {
+                messageInput.value = btn.textContent.trim();
+                sendMessage();
+            }
+        });
+    }
+
+    // Timestamp helper
+    function setTimestamp(element) {
+        if (!element) return;
         const now = new Date();
-        let hours = now.getHours();
-        const minutes = now.getMinutes().toString().padStart(2, '0');
+        element.textContent = formatTime(now);
+    }
+
+    document.querySelectorAll('[data-timestamp]').forEach(setTimestamp);
+
+    function formatTime(date) {
+        let hours = date.getHours();
+        const minutes = date.getMinutes().toString().padStart(2, '0');
         const ampm = hours >= 12 ? 'PM' : 'AM';
         hours = hours % 12;
         hours = hours ? hours : 12;
         return `${hours}:${minutes} ${ampm}`;
     }
 
-    // Send message function
+    // Escape HTML to prevent XSS
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    // Convert URLs in text to clickable links
+    function linkify(text) {
+        const urlRegex = /(https?:\/\/[^\s]+)/g;
+        return escapeHtml(text).replace(urlRegex, function (url) {
+            return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="text-brand-600 dark:text-brand-400 underline">${url}</a>`;
+        });
+    }
+
+    // Add a new message
+    function addMessage(text, isUser) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `flex message-entry ${isUser ? 'justify-end' : 'items-start'}`;
+
+        const time = formatTime(new Date());
+
+        if (!isUser) {
+            messageDiv.innerHTML = `
+                <div class="w-8 h-8 rounded-full bg-brand-300 dark:bg-brand-600 flex items-center justify-center mr-2 flex-shrink-0">
+                    <i class="fas fa-robot text-brand-700 dark:text-white text-sm"></i>
+                </div>
+                <div class="max-w-[85%] md:max-w-md lg:max-w-lg bg-white dark:bg-gray-800 p-3 rounded-2xl rounded-tl-none shadow-sm border border-brand-100 dark:border-gray-700 transition-colors duration-300">
+                    <div class="text-gray-800 dark:text-gray-100 text-sm leading-relaxed">${linkify(text)}</div>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">${time}</p>
+                </div>
+            `;
+        } else {
+            messageDiv.innerHTML = `
+                <div class="max-w-[85%] md:max-w-md lg:max-w-lg bg-brand-500 text-white p-3 rounded-2xl rounded-tr-none shadow-sm">
+                    <div class="text-sm leading-relaxed">${escapeHtml(text)}</div>
+                    <p class="text-xs text-brand-100 mt-1">${time}</p>
+                </div>
+                <div class="w-8 h-8 rounded-full bg-brand-100 dark:bg-gray-700 flex items-center justify-center ml-2 flex-shrink-0">
+                    <i class="fas fa-user text-brand-600 dark:text-brand-300 text-sm"></i>
+                </div>
+            `;
+        }
+
+        messagesContainer.appendChild(messageDiv);
+        scrollToBottom();
+    }
+
+    function scrollToBottom() {
+        messagesContainer.scrollTo({
+            top: messagesContainer.scrollHeight,
+            behavior: 'smooth'
+        });
+    }
+
     async function sendMessage() {
         const message = messageInput.value.trim();
         if (!message) return;
 
-        addMessage(message, true); // Add user message
+        addMessage(message, true);
         messageInput.value = '';
+        sendButton.disabled = true;
 
-        // Show typing indicator
+        // Hide quick questions after first user message
+        if (quickQuestions) {
+            quickQuestions.style.display = 'none';
+        }
+
         typingIndicator.classList.remove('hidden');
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        scrollToBottom();
 
         try {
             const response = await fetch('/', {
@@ -67,30 +139,25 @@ document.addEventListener('DOMContentLoaded', function () {
 
             const data = await response.json();
             typingIndicator.classList.add('hidden');
+            sendButton.disabled = false;
 
-            addMessage(data.response || 'No response received.', false); // Bot message
+            addMessage(data.response || 'No response received.', false);
         } catch (error) {
             typingIndicator.classList.add('hidden');
-            addMessage('Error: ' + error.message, false);
+            sendButton.disabled = false;
+            addMessage('Sorry, there was a network error. Please try again.', false);
         }
     }
 
-    // Event listener for form submit
-    queryForm.addEventListener('submit', async function (event) {
+    queryForm.addEventListener('submit', function (event) {
         event.preventDefault();
-        await sendMessage();
+        sendMessage();
     });
 
-    // Enter key submission
-    messageInput.addEventListener('keypress', async function (e) {
+    messageInput.addEventListener('keypress', function (e) {
         if (e.key === 'Enter') {
             e.preventDefault();
-            await sendMessage();
+            sendMessage();
         }
     });
-
-    // Initial welcome message
-    setTimeout(() => {
-        addMessage("Try asking me anything! I can help with general questions, provide information, or just chat.", false);
-    }, 1500);
 });
