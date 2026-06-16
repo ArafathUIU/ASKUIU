@@ -28,10 +28,10 @@ def create_app(config_class=None):
     )
 
     if config_class is None:
-        env = ProductionConfig
-        if app.config.get("DEBUG") or (env.FLASK_ENV == "development"):
-            env = DevelopmentConfig
-        config_class = env
+        if os.getenv("FLASK_ENV") == "production":
+            config_class = ProductionConfig
+        else:
+            config_class = DevelopmentConfig
 
     app.config.from_object(config_class)
 
