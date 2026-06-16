@@ -31,8 +31,13 @@
     function initTheme() {
         const saved = localStorage.getItem('askuiu-theme');
         const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        if (saved === 'dark' || (!saved && prefersDark)) {
+        if (saved === 'light' || (!saved && !prefersDark)) {
+            document.documentElement.classList.remove('dark');
+            document.documentElement.classList.add('light');
+            updateThemeUI(false);
+        } else {
             document.documentElement.classList.add('dark');
+            document.documentElement.classList.remove('light');
             updateThemeUI(true);
         }
     }
@@ -45,6 +50,7 @@
 
     themeToggle.addEventListener('click', function () {
         const isDark = document.documentElement.classList.toggle('dark');
+        document.documentElement.classList.toggle('light', !isDark);
         localStorage.setItem('askuiu-theme', isDark ? 'dark' : 'light');
         updateThemeUI(isDark);
     });
@@ -67,7 +73,6 @@
     sidebarToggle.addEventListener('click', openSidebar);
     sidebarOverlay.addEventListener('click', closeSidebar);
 
-    // Close sidebar when clicking a history item on mobile
     chatHistoryEl.addEventListener('click', function (e) {
         const item = e.target.closest('.history-item');
         if (item && window.innerWidth < 1024) {
@@ -97,7 +102,7 @@
     function createNewChat(title) {
         const chat = {
             id: generateId(),
-            title: title || 'New Chat',
+            title: title || 'New Mission',
             createdAt: Date.now(),
             messages: []
         };
@@ -109,17 +114,11 @@
         return chat;
     }
 
-    function getActiveChat() {
-        const chats = loadChats();
-        return chats.find(c => c.id === activeChatId) || null;
-    }
-
     function updateActiveChat() {
         const chats = loadChats();
         const chat = chats.find(c => c.id === activeChatId);
         if (!chat) return;
 
-        // Gather messages from DOM
         const messageEls = messagesContainer.querySelectorAll('.message-wrapper');
         const messages = [];
         messageEls.forEach(el => {
@@ -133,7 +132,6 @@
         });
         chat.messages = messages;
 
-        // Update title from first user message
         const firstUser = messages.find(m => m.role === 'user');
         if (firstUser) {
             chat.title = firstUser.text.slice(0, 40) + (firstUser.text.length > 40 ? '...' : '');
@@ -149,8 +147,8 @@
 
         if (chats.length === 0) {
             chatHistoryEl.innerHTML = `
-                <div class="text-center py-6 text-xs text-uiu-gray-600 dark:text-gray-500">
-                    No chats yet
+                <div class="text-center py-6 text-xs text-gray-500">
+                    No mission logs yet
                 </div>
             `;
             return;
@@ -158,14 +156,14 @@
 
         chats.forEach(chat => {
             const div = document.createElement('div');
-            div.className = `history-item group flex items-center justify-between p-3 rounded-xl cursor-pointer border border-transparent hover:bg-uiu-orange-light dark:hover:bg-white/5 transition ${chat.id === activeChatId ? 'active' : ''}`;
+            div.className = `history-item group flex items-center justify-between p-3 rounded-xl cursor-pointer border border-transparent hover:bg-white/5 transition ${chat.id === activeChatId ? 'active' : ''}`;
             div.dataset.id = chat.id;
             div.innerHTML = `
                 <div class="flex items-center gap-3 overflow-hidden">
-                    <i class="fas fa-message text-uiu-orange text-xs"></i>
-                    <span class="text-sm truncate text-uiu-dark dark:text-gray-200">${escapeHtml(chat.title)}</span>
+                    <i class="fas fa-satellite text-uiu-orange text-xs"></i>
+                    <span class="text-sm truncate text-gray-200">${escapeHtml(chat.title)}</span>
                 </div>
-                <button class="delete-chat opacity-0 group-hover:opacity-100 w-7 h-7 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 text-red-500 transition flex items-center justify-center" aria-label="Delete chat">
+                <button class="delete-chat opacity-0 group-hover:opacity-100 w-7 h-7 rounded-lg hover:bg-red-900/30 text-red-400 transition flex items-center justify-center" aria-label="Delete chat">
                     <i class="fas fa-trash text-xs"></i>
                 </button>
             `;
@@ -181,7 +179,6 @@
         activeChatId = chat.id;
         localStorage.setItem(ACTIVE_CHAT_KEY, chat.id);
 
-        // Clear messages area but keep container
         messagesContainer.innerHTML = '';
         welcomeSection.classList.add('hidden');
 
@@ -234,7 +231,7 @@
     });
 
     newChatBtn.addEventListener('click', function () {
-        createNewChat('New Chat');
+        createNewChat('New Mission');
         showWelcome();
         renderHistory();
         if (window.innerWidth < 1024) closeSidebar();
@@ -251,7 +248,7 @@
     function linkify(text) {
         const urlRegex = /(https?:\/\/[^\s]+)/g;
         return escapeHtml(text).replace(urlRegex, function (url) {
-            return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="text-uiu-orange hover:text-uiu-orange-hover underline">${url}</a>`;
+            return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="text-uiu-orange hover:text-mars-sand underline">${url}</a>`;
         });
     }
 
@@ -267,6 +264,9 @@
     function renderMessage(text, isUser, animate = true) {
         welcomeSection.classList.add('hidden');
         const time = formatTime(new Date());
+        const isDark = document.documentElement.classList.contains('dark');
+        const textColor = isUser ? 'text-white' : (isDark ? 'text-gray-100' : 'text-gray-800');
+        const metaColor = isUser ? 'text-white/80' : 'text-gray-500';
 
         const wrapper = document.createElement('div');
         wrapper.className = `message-wrapper flex ${isUser ? 'justify-end' : 'justify-start'} ${animate ? 'message-entry' : ''}`;
@@ -276,24 +276,24 @@
         if (isUser) {
             wrapper.innerHTML = `
                 <div class="flex items-end max-w-[85%] md:max-w-lg lg:max-w-xl gap-2">
-                    <div class="message-bubble-user px-5 py-3.5 rounded-2xl shadow-md">
-                        <div class="message-text text-sm leading-relaxed">${escapeHtml(text)}</div>
-                        <p class="text-[10px] text-white/80 mt-1.5 text-right">${time}</p>
+                    <div class="message-bubble-user px-5 py-3.5 rounded-2xl">
+                        <div class="message-text text-sm leading-relaxed ${textColor}">${escapeHtml(text)}</div>
+                        <p class="text-[10px] ${metaColor} mt-1.5 text-right">${time}</p>
                     </div>
-                    <div class="w-8 h-8 rounded-full bg-uiu-orange-light dark:bg-white/10 flex items-center justify-center flex-shrink-0 border border-uiu-orange/20">
-                        <i class="fas fa-user text-uiu-orange text-xs"></i>
+                    <div class="w-8 h-8 rounded-full bg-mars-slate border border-uiu-orange/30 flex items-center justify-center flex-shrink-0">
+                        <i class="fas fa-user-astronaut text-uiu-orange text-xs"></i>
                     </div>
                 </div>
             `;
         } else {
             wrapper.innerHTML = `
                 <div class="flex items-end max-w-[85%] md:max-w-lg lg:max-w-xl gap-2">
-                    <div class="w-8 h-8 rounded-full bg-uiu-orange text-white flex items-center justify-center flex-shrink-0 shadow-sm">
+                    <div class="w-9 h-9 rounded-full bg-gradient-to-br from-uiu-orange to-mars-rust text-white flex items-center justify-center flex-shrink-0 shadow-lg shadow-uiu-orange/20">
                         <i class="fas fa-robot text-xs"></i>
                     </div>
-                    <div class="message-bubble-bot px-5 py-3.5 rounded-2xl shadow-sm text-uiu-black dark:text-gray-100">
+                    <div class="message-bubble-bot px-5 py-3.5 rounded-2xl ${textColor}">
                         <div class="message-text text-sm leading-relaxed">${linkify(text)}</div>
-                        <p class="text-[10px] text-uiu-gray-600 dark:text-gray-400 mt-1.5">${time}</p>
+                        <p class="text-[10px] ${metaColor} mt-1.5">${time}</p>
                     </div>
                 </div>
             `;
@@ -315,7 +315,7 @@
         quickQuestions.addEventListener('click', function (e) {
             const btn = e.target.closest('.quick-question');
             if (btn) {
-                const p = btn.querySelector('p.font-semibold');
+                const p = btn.querySelector('p.font-bold');
                 messageInput.value = p ? p.textContent.trim() : btn.textContent.trim();
                 sendMessage();
             }

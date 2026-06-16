@@ -1,13 +1,13 @@
 <!DOCTYPE html>
-<html lang="en" class="light">
+<html lang="en" class="dark">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <meta name="description" content="ASKUIU - AI assistant for United International University"/>
-  <title>ASKUIU - United International University</title>
+  <title>ASKUIU - Mars Rover Edition</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Text:ital@0;1&family=Open+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   <link rel="stylesheet" href="/static/style.css" />
@@ -19,21 +19,26 @@
         extend: {
           fontFamily: {
             sans: ['"Open Sans"', 'sans-serif'],
+            serif: ['"DM Serif Text"', 'serif'],
           },
           colors: {
+            mars: {
+              night: '#0D1117',
+              slate: '#161B22',
+              dust: '#C69260',
+              sand: '#E8C07B',
+              rust: '#B07B52',
+              brown: '#6E4432',
+              shadow: '#1D1D1B',
+            },
             uiu: {
               orange: '#F68B1F',
               'orange-hover': '#E07D18',
-              'orange-light': 'rgba(246, 139, 31, 0.12)',
               'orange-glow': 'rgba(246, 139, 31, 0.25)',
-              dark: '#282828',
-              black: '#1A1A1A',
-              gray: '#F5F5F5',
-              'gray-100': '#EFEFEF',
-              'gray-200': '#E5E5E5',
-              'gray-600': '#6B7280',
-              'gray-700': '#374151',
-              'gray-800': '#1F2937',
+            },
+            bd: {
+              green: '#388E3C',
+              red: '#C62828',
             }
           }
         }
@@ -42,107 +47,141 @@
   </script>
 </head>
 
-<body class="h-screen w-screen overflow-hidden bg-uiu-gray dark:bg-uiu-black text-uiu-black dark:text-white font-sans transition-colors duration-300">
+<body class="h-screen w-screen overflow-hidden bg-mars-night text-white font-sans selection:bg-uiu-orange/30">
+  <!-- Starfield background -->
+  <div class="fixed inset-0 pointer-events-none z-0" id="starfield"></div>
+  <div class="fixed inset-0 pointer-events-none z-0 bg-gradient-to-b from-mars-night via-mars-slate/30 to-mars-night"></div>
+
   <!-- Mobile Sidebar Overlay -->
-  <div id="sidebar-overlay" class="fixed inset-0 bg-black/40 z-40 hidden lg:hidden backdrop-blur-sm transition-opacity"></div>
+  <div id="sidebar-overlay" class="fixed inset-0 bg-black/60 z-40 hidden lg:hidden backdrop-blur-sm transition-opacity"></div>
 
   <!-- Sidebar -->
-  <aside id="sidebar" class="fixed lg:static inset-y-0 left-0 z-50 w-72 bg-white/80 dark:bg-uiu-dark/80 backdrop-blur-xl border-r border-white/50 dark:border-white/10 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 flex flex-col shadow-2xl">
+  <aside id="sidebar" class="fixed lg:static inset-y-0 left-0 z-50 w-72 bg-mars-slate/90 backdrop-blur-xl border-r border-white/10 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 flex flex-col shadow-2xl">
     <!-- Sidebar Header -->
-    <div class="p-5 border-b border-uiu-gray-200 dark:border-white/10">
-      <a href="https://www.uiu.ac.bd/" target="_blank" rel="noopener" class="flex items-center gap-3 group">
-        <div class="w-11 h-11 rounded-xl bg-white shadow-md flex items-center justify-center p-1.5 group-hover:shadow-lg transition">
+    <div class="p-5 border-b border-white/10">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-uiu-orange to-mars-rust shadow-lg shadow-uiu-orange/20 flex items-center justify-center p-2">
           <img src="/static/uiu-logo.png" alt="UIU" class="w-full h-full object-contain" />
         </div>
         <div>
-          <h1 class="font-bold text-lg leading-tight tracking-tight">ASKUIU</h1>
-          <p class="text-[10px] text-uiu-gray-600 dark:text-gray-400 uppercase tracking-widest">UIU Assistant</p>
+          <h1 class="font-serif text-xl leading-tight">ASKUIU</h1>
+          <p class="text-[10px] text-mars-sand uppercase tracking-widest font-semibold">Mars Rover Edition</p>
         </div>
-      </a>
+      </div>
+    </div>
+
+    <!-- Achievement Badge -->
+    <div class="px-4 pt-4">
+      <div class="rounded-xl overflow-hidden border border-white/10 shadow-lg group cursor-default">
+        <div class="relative h-28">
+          <img src="/static/mars-rover-hero.jpg" alt="UIU Mars Rover" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition duration-500 group-hover:scale-105"/>
+          <div class="absolute inset-0 bg-gradient-to-t from-mars-slate via-mars-slate/40 to-transparent"></div>
+          <div class="absolute bottom-0 left-0 right-0 p-3">
+            <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider">
+              <span class="px-1.5 py-0.5 rounded bg-bd-green text-white">World No. 3</span>
+              <span class="px-1.5 py-0.5 rounded bg-bd-red text-white">Asia No. 1</span>
+            </div>
+          </div>
+        </div>
+        <div class="p-3 bg-mars-slate/80">
+          <p class="text-[11px] text-mars-sand italic font-serif">"History now has a new name: UIU"</p>
+        </div>
+      </div>
     </div>
 
     <!-- New Chat Button -->
     <div class="p-4">
-      <button id="new-chat-btn" class="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-uiu-orange text-white font-semibold hover:bg-uiu-orange-hover transition shadow-lg shadow-uiu-orange/20">
-        <i class="fas fa-plus"></i> New Chat
+      <button id="new-chat-btn" class="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-gradient-to-r from-uiu-orange to-mars-rust text-white font-bold hover:shadow-lg hover:shadow-uiu-orange/30 transition">
+        <i class="fas fa-plus"></i> New Mission
       </button>
     </div>
 
     <!-- Chat History -->
     <div class="flex-1 overflow-y-auto px-4 pb-4 custom-scrollbar">
-      <p class="text-[11px] font-semibold text-uiu-gray-600 dark:text-gray-400 uppercase tracking-wider mb-3 px-2">Recent Chats</p>
+      <p class="text-[10px] font-bold text-mars-sand uppercase tracking-widest mb-3 px-2">Mission Log</p>
       <div id="chat-history" class="space-y-2">
         <!-- History items injected by JS -->
       </div>
     </div>
 
     <!-- Sidebar Footer -->
-    <div class="p-4 border-t border-uiu-gray-200 dark:border-white/10 space-y-2">
-      <a href="https://www.uiu.ac.bd/contact-us/" target="_blank" rel="noopener" class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-uiu-orange-light dark:hover:bg-white/5 text-sm text-uiu-dark dark:text-gray-300 transition">
-        <i class="fas fa-headset text-uiu-orange"></i> Contact UIU
+    <div class="p-4 border-t border-white/10 space-y-2">
+      <a href="https://www.uiu.ac.bd/news/uiu-makes-new-history-at-urc-2026-3rd-globally-and-1st-in-asia-bangladeshs-flag-flies-high-for-the-fifth-consecutive-time/" target="_blank" rel="noopener" class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-white/5 text-sm text-gray-300 transition">
+        <i class="fas fa-rocket text-uiu-orange"></i> UIU Mars Rover
       </a>
-      <button id="theme-toggle" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-uiu-orange-light dark:hover:bg-white/5 text-sm text-uiu-dark dark:text-gray-300 transition">
-        <i class="fas fa-moon text-uiu-orange"></i> <span id="theme-label">Dark Mode</span>
+      <button id="theme-toggle" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-white/5 text-sm text-gray-300 transition">
+        <i class="fas fa-sun text-uiu-orange"></i> <span id="theme-label">Light Mode</span>
       </button>
-      <div class="pt-2 text-[10px] text-center text-uiu-gray-600 dark:text-gray-500">
+      <div class="pt-2 text-[10px] text-center text-gray-500">
         &copy; <span id="year"></span> United International University
       </div>
     </div>
   </aside>
 
   <!-- Main Content -->
-  <main class="flex-1 flex flex-col h-full w-full lg:w-auto relative">
+  <main class="flex-1 flex flex-col h-full w-full lg:w-auto relative z-10">
     <!-- Top Header -->
-    <header class="h-16 px-4 lg:px-6 flex items-center justify-between bg-white/70 dark:bg-uiu-dark/70 backdrop-blur-lg border-b border-white/50 dark:border-white/10 z-30">
+    <header class="h-16 px-4 lg:px-6 flex items-center justify-between bg-mars-slate/60 backdrop-blur-lg border-b border-white/10 z-30">
       <div class="flex items-center gap-3">
-        <button id="sidebar-toggle" class="lg:hidden w-10 h-10 rounded-xl hover:bg-uiu-gray dark:hover:bg-white/10 flex items-center justify-center transition" aria-label="Toggle sidebar">
-          <i class="fas fa-bars text-uiu-dark dark:text-white"></i>
+        <button id="sidebar-toggle" class="lg:hidden w-10 h-10 rounded-xl hover:bg-white/10 flex items-center justify-center transition" aria-label="Toggle sidebar">
+          <i class="fas fa-bars text-white"></i>
         </button>
         <div class="hidden sm:block">
-          <h2 class="font-semibold text-sm lg:text-base text-uiu-black dark:text-white">ASKUIU Assistant</h2>
-          <p class="text-[10px] text-uiu-gray-600 dark:text-gray-400 flex items-center">
-            <span class="inline-block w-1.5 h-1.5 rounded-full bg-green-500 mr-1.5 animate-pulse"></span> Online — Powered by UIU knowledgebase
+          <h2 class="font-serif text-lg text-white">ASKUIU <span class="text-uiu-orange">Assistant</span></h2>
+          <p class="text-[10px] text-mars-sand flex items-center uppercase tracking-wider">
+            <span class="inline-block w-1.5 h-1.5 rounded-full bg-uiu-orange mr-1.5 animate-pulse"></span> Mission Control Online
           </p>
         </div>
       </div>
-      <a href="https://www.uiu.ac.bd/" target="_blank" rel="noopener" class="text-xs font-semibold text-uiu-orange hover:text-uiu-orange-hover transition flex items-center gap-1.5">
+      <a href="https://www.uiu.ac.bd/" target="_blank" rel="noopener" class="text-xs font-bold text-mars-sand hover:text-uiu-orange transition flex items-center gap-1.5 uppercase tracking-wide">
         uiu.ac.bd <i class="fas fa-external-link-alt text-[10px]"></i>
       </a>
     </header>
 
     <!-- Chat Area -->
     <div id="chat-container" class="flex-1 flex flex-col overflow-hidden relative">
-      <!-- Empty State / Messages -->
+      <!-- Messages Area -->
       <div id="messages-container" class="flex-1 overflow-y-auto p-4 lg:p-8 space-y-6 custom-scrollbar scroll-smooth">
         <!-- Welcome Section -->
-        <div id="welcome-section" class="max-w-2xl mx-auto text-center pt-8 lg:pt-16 message-entry">
-          <div class="w-20 h-20 mx-auto rounded-2xl bg-white dark:bg-uiu-dark shadow-xl flex items-center justify-center p-3 mb-6">
-            <img src="/static/uiu-logo.png" alt="UIU" class="w-full h-full object-contain" />
+        <div id="welcome-section" class="max-w-3xl mx-auto pt-4 lg:pt-8 message-entry">
+          <!-- Hero Poster Card -->
+          <div class="relative rounded-2xl overflow-hidden border border-white/10 shadow-2xl shadow-black/50 mb-8 group">
+            <img src="/static/mars-rover-poster.jpeg" alt="UIU Mars Rover - History now has a new name" class="w-full h-64 sm:h-80 object-cover object-center group-hover:scale-[1.02] transition duration-700"/>
+            <div class="absolute inset-0 bg-gradient-to-t from-mars-night via-mars-night/50 to-transparent"></div>
+            <div class="absolute bottom-0 left-0 right-0 p-6">
+              <div class="flex flex-wrap gap-2 mb-3">
+                <span class="px-2.5 py-1 rounded-md bg-uiu-orange text-white text-[10px] font-bold uppercase tracking-wider">URC 2026</span>
+                <span class="px-2.5 py-1 rounded-md bg-bd-green/90 text-white text-[10px] font-bold uppercase tracking-wider">World No. 3</span>
+                <span class="px-2.5 py-1 rounded-md bg-bd-red/90 text-white text-[10px] font-bold uppercase tracking-wider">Asia No. 1</span>
+              </div>
+              <h2 class="font-serif text-3xl sm:text-4xl lg:text-5xl text-white mb-2 leading-tight">History now has a new name: <span class="text-uiu-orange">UIU</span></h2>
+              <p class="text-mars-sand italic font-serif text-sm sm:text-base">"This is more than a ranking. This is ambition engineered."</p>
+            </div>
           </div>
-          <h2 class="text-3xl lg:text-4xl font-bold mb-3 text-uiu-black dark:text-white">How can I help you?</h2>
-          <p class="text-uiu-gray-600 dark:text-gray-400 mb-8 max-w-md mx-auto">Ask anything about admissions, programs, scholarships, campus life, or university services at United International University.</p>
+
+          <p class="text-center text-gray-400 mb-6">Ask anything about admissions, programs, scholarships, campus life, or university services.</p>
 
           <!-- Quick Questions Grid -->
           <div id="quick-questions" class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-left">
-            <button class="quick-question group p-4 rounded-2xl bg-white dark:bg-uiu-dark border border-uiu-gray-200 dark:border-white/10 hover:border-uiu-orange hover:shadow-lg hover:shadow-uiu-orange/10 transition">
+            <button class="quick-question group p-4 rounded-xl bg-mars-slate/60 border border-white/10 hover:border-uiu-orange hover:bg-white/5 transition">
               <i class="fas fa-graduation-cap text-uiu-orange mb-2 text-lg"></i>
-              <p class="font-semibold text-sm text-uiu-black dark:text-white">Top programs at UIU</p>
-              <p class="text-xs text-uiu-gray-600 dark:text-gray-400 mt-1">Explore undergraduate and graduate programs.</p>
+              <p class="font-bold text-sm text-white">Top programs at UIU</p>
+              <p class="text-xs text-gray-400 mt-1">Explore undergraduate and graduate programs.</p>
             </button>
-            <button class="quick-question group p-4 rounded-2xl bg-white dark:bg-uiu-dark border border-uiu-gray-200 dark:border-white/10 hover:border-uiu-orange hover:shadow-lg hover:shadow-uiu-orange/10 transition">
-              <i class="fas fa-scholarship text-uiu-orange mb-2 text-lg"></i>
-              <p class="font-semibold text-sm text-uiu-black dark:text-white">Scholarships & waivers</p>
-              <p class="text-xs text-uiu-gray-600 dark:text-gray-400 mt-1">Learn about tuition fees and financial aid.</p>
+            <button class="quick-question group p-4 rounded-xl bg-mars-slate/60 border border-white/10 hover:border-uiu-orange hover:bg-white/5 transition">
+              <i class="fas fa-hand-holding-dollar text-uiu-orange mb-2 text-lg"></i>
+              <p class="font-bold text-sm text-white">Scholarships & waivers</p>
+              <p class="text-xs text-gray-400 mt-1">Learn about tuition fees and financial aid.</p>
             </button>
-            <button class="quick-question group p-4 rounded-2xl bg-white dark:bg-uiu-dark border border-uiu-gray-200 dark:border-white/10 hover:border-uiu-orange hover:shadow-lg hover:shadow-uiu-orange/10 transition">
+            <button class="quick-question group p-4 rounded-xl bg-mars-slate/60 border border-white/10 hover:border-uiu-orange hover:bg-white/5 transition">
               <i class="fas fa-user-tie text-uiu-orange mb-2 text-lg"></i>
-              <p class="font-semibold text-sm text-uiu-black dark:text-white">CSE department head</p>
-              <p class="text-xs text-uiu-gray-600 dark:text-gray-400 mt-1">Find faculty and authority information.</p>
+              <p class="font-bold text-sm text-white">CSE department head</p>
+              <p class="text-xs text-gray-400 mt-1">Find faculty and authority information.</p>
             </button>
-            <button class="quick-question group p-4 rounded-2xl bg-white dark:bg-uiu-dark border border-uiu-gray-200 dark:border-white/10 hover:border-uiu-orange hover:shadow-lg hover:shadow-uiu-orange/10 transition">
+            <button class="quick-question group p-4 rounded-xl bg-mars-slate/60 border border-white/10 hover:border-uiu-orange hover:bg-white/5 transition">
               <i class="fas fa-building text-uiu-orange mb-2 text-lg"></i>
-              <p class="font-semibold text-sm text-uiu-black dark:text-white">Campus facilities</p>
-              <p class="text-xs text-uiu-gray-600 dark:text-gray-400 mt-1">Discover labs, library, sports, and more.</p>
+              <p class="font-bold text-sm text-white">Campus facilities</p>
+              <p class="text-xs text-gray-400 mt-1">Discover labs, library, sports, and more.</p>
             </button>
           </div>
         </div>
@@ -151,13 +190,13 @@
       <!-- Typing Indicator -->
       <div class="typing-indicator hidden px-4 lg:px-8 pb-4">
         <div class="flex items-start max-w-3xl mx-auto">
-          <div class="w-8 h-8 rounded-full bg-uiu-orange text-white flex items-center justify-center mr-3 flex-shrink-0">
+          <div class="w-9 h-9 rounded-full bg-gradient-to-br from-uiu-orange to-mars-rust text-white flex items-center justify-center mr-3 flex-shrink-0 shadow-lg shadow-uiu-orange/20">
             <i class="fas fa-robot text-xs"></i>
           </div>
-          <div class="bg-white dark:bg-uiu-dark px-4 py-3 rounded-2xl rounded-tl-none shadow-sm border border-uiu-gray-200 dark:border-white/10">
+          <div class="bg-mars-slate/80 border border-white/10 px-4 py-3 rounded-2xl rounded-tl-none backdrop-blur-md">
             <div class="flex space-x-1.5">
               <div class="w-2 h-2 rounded-full bg-uiu-orange animate-bounce"></div>
-              <div class="w-2 h-2 rounded-full bg-uiu-orange animate-bounce delay-150"></div>
+              <div class="w-2 h-2 rounded-full bg-mars-sand animate-bounce delay-150"></div>
               <div class="w-2 h-2 rounded-full bg-uiu-orange animate-bounce delay-300"></div>
             </div>
           </div>
@@ -165,18 +204,18 @@
       </div>
 
       <!-- Input Area -->
-      <div class="p-4 lg:p-6 bg-white/70 dark:bg-uiu-dark/70 backdrop-blur-lg border-t border-white/50 dark:border-white/10">
+      <div class="p-4 lg:p-6 bg-mars-slate/60 backdrop-blur-lg border-t border-white/10">
         <div class="max-w-3xl mx-auto">
           <form id="query-form" class="relative">
-            <input type="text" id="user_message" name="user_message" placeholder="Ask anything about UIU..."
-              class="w-full pl-5 pr-14 py-4 rounded-2xl bg-white dark:bg-uiu-black border border-uiu-gray-200 dark:border-white/10 text-uiu-black dark:text-white placeholder-uiu-gray-600 focus:outline-none focus:ring-2 focus:ring-uiu-orange/50 focus:border-uiu-orange transition shadow-sm"/>
+            <input type="text" id="user_message" name="user_message" placeholder="Transmit your question to mission control..."
+              class="w-full pl-5 pr-14 py-4 rounded-xl bg-mars-night/80 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-uiu-orange/50 focus:border-uiu-orange transition shadow-lg"/>
             <button type="submit" id="send-button"
-              class="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-xl bg-uiu-orange text-white hover:bg-uiu-orange-hover transition disabled:opacity-50 disabled:cursor-not-allowed shadow-md flex items-center justify-center"
+              class="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-lg bg-gradient-to-br from-uiu-orange to-mars-rust text-white hover:shadow-lg hover:shadow-uiu-orange/30 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
               aria-label="Send message">
               <i class="fas fa-paper-plane text-sm"></i>
             </button>
           </form>
-          <p class="text-[11px] text-uiu-gray-600 dark:text-gray-500 text-center mt-2">ASKUIU may produce inaccurate information. Always verify critical details with official UIU sources.</p>
+          <p class="text-[10px] text-gray-500 text-center mt-2">ASKUIU may produce inaccurate information. Always verify critical details with official UIU sources.</p>
         </div>
       </div>
     </div>
