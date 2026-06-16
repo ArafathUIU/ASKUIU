@@ -1,7 +1,8 @@
 :root {
     --uiu-orange: #F68B1F;
     --uiu-orange-hover: #E07D18;
-    --uiu-orange-light: #FFF5E8;
+    --uiu-orange-light: rgba(246, 139, 31, 0.12);
+    --uiu-orange-glow: rgba(246, 139, 31, 0.25);
     --uiu-dark: #282828;
     --uiu-black: #1A1A1A;
     --uiu-gray: #F5F5F5;
@@ -9,24 +10,51 @@
 
     --scrollbar-track: rgba(246, 139, 31, 0.08);
     --scrollbar-thumb: rgba(246, 139, 31, 0.35);
+
+    --glass-bg: rgba(255, 255, 255, 0.75);
+    --glass-border: rgba(255, 255, 255, 0.5);
+    --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
 }
 
 .dark {
-    --scrollbar-track: rgba(75, 85, 99, 0.25);
-    --scrollbar-thumb: rgba(246, 139, 31, 0.55);
+    --scrollbar-track: rgba(75, 85, 99, 0.2);
+    --scrollbar-thumb: rgba(246, 139, 31, 0.5);
+
+    --glass-bg: rgba(40, 40, 40, 0.75);
+    --glass-border: rgba(255, 255, 255, 0.08);
+    --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 }
 
-/* Base typography */
+/* Base */
+* {
+    box-sizing: border-box;
+}
+
+html {
+    overflow: hidden;
+}
+
 body {
     font-family: 'Open Sans', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Glassmorphism utilities */
+.glass {
+    background: var(--glass-bg);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--glass-shadow);
 }
 
 /* Custom scrollbar */
 .custom-scrollbar::-webkit-scrollbar {
-    width: 6px;
+    width: 5px;
 }
 .custom-scrollbar::-webkit-scrollbar-track {
-    background: var(--scrollbar-track);
+    background: transparent;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb {
     background-color: var(--scrollbar-thumb);
@@ -36,36 +64,14 @@ body {
 /* Firefox scrollbar */
 .custom-scrollbar {
     scrollbar-width: thin;
-    scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+    scrollbar-color: var(--scrollbar-thumb) transparent;
 }
 
-/* Pulse animation for typing indicator */
-@keyframes pulse {
-    0%, 100% {
-        opacity: 0.4;
-    }
-    50% {
-        opacity: 1;
-    }
-}
-.typing-dot {
-    animation: pulse 1.5s infinite ease-in-out;
-}
-.typing-dot:nth-child(1) {
-    animation-delay: 0s;
-}
-.typing-dot:nth-child(2) {
-    animation-delay: 0.3s;
-}
-.typing-dot:nth-child(3) {
-    animation-delay: 0.6s;
-}
-
-/* Message entry animation */
+/* Animations */
 @keyframes messageEntry {
     from {
         opacity: 0;
-        transform: translateY(10px);
+        transform: translateY(12px);
     }
     to {
         opacity: 1;
@@ -73,29 +79,69 @@ body {
     }
 }
 .message-entry {
-    animation: messageEntry 0.3s ease-out;
+    animation: messageEntry 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-/* Focus styles for accessibility */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+.fade-in {
+    animation: fadeIn 0.2s ease-out;
+}
+
+/* Typing dots */
+.animate-bounce.delay-150 {
+    animation-delay: 150ms;
+}
+.animate-bounce.delay-300 {
+    animation-delay: 300ms;
+}
+
+/* Focus styles */
 button:focus-visible,
 input:focus-visible {
     outline: 2px solid var(--uiu-orange);
     outline-offset: 2px;
 }
 
-/* Smooth transitions */
-* {
-    transition-property: background-color, border-color, color;
-    transition-duration: 150ms;
-}
-
-/* Selection color */
+/* Selection */
 ::selection {
     background-color: rgba(246, 139, 31, 0.25);
     color: inherit;
 }
 
-/* Utility to prevent layout shift from scrollbar */
-html {
-    overflow-y: scroll;
+/* Sidebar active state */
+.history-item.active {
+    background-color: var(--uiu-orange-light);
+    border-color: rgba(246, 139, 31, 0.3);
+}
+.dark .history-item.active {
+    background-color: rgba(246, 139, 31, 0.15);
+}
+
+/* Message bubbles */
+.message-bubble-user {
+    background: linear-gradient(135deg, var(--uiu-orange), var(--uiu-orange-hover));
+    color: #fff;
+    border-bottom-right-radius: 4px;
+}
+
+.message-bubble-bot {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-bottom-left-radius: 4px;
+}
+
+/* Hide number input arrows */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* Smooth transitions */
+* {
+    transition-property: background-color, border-color, color;
+    transition-duration: 150ms;
 }

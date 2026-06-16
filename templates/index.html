@@ -24,7 +24,8 @@
             uiu: {
               orange: '#F68B1F',
               'orange-hover': '#E07D18',
-              'orange-light': '#FFF5E8',
+              'orange-light': 'rgba(246, 139, 31, 0.12)',
+              'orange-glow': 'rgba(246, 139, 31, 0.25)',
               dark: '#282828',
               black: '#1A1A1A',
               gray: '#F5F5F5',
@@ -41,128 +42,145 @@
   </script>
 </head>
 
-<body class="bg-uiu-gray dark:bg-uiu-black h-screen flex flex-col font-sans transition-colors duration-300">
-  <!-- Top Global Bar (UIU style) -->
-  <div class="bg-uiu-black text-white text-xs py-2">
-    <div class="container mx-auto px-4 flex justify-between items-center">
-      <span class="text-gray-300 hidden sm:inline">United International University</span>
-      <div class="flex items-center gap-4 ml-auto">
-        <a href="https://www.uiu.ac.bd/" target="_blank" rel="noopener" class="hover:text-uiu-orange transition">uiu.ac.bd <i class="fas fa-external-link-alt text-[10px] ml-0.5"></i></a>
-      </div>
-    </div>
-  </div>
+<body class="h-screen w-screen overflow-hidden bg-uiu-gray dark:bg-uiu-black text-uiu-black dark:text-white font-sans transition-colors duration-300">
+  <!-- Mobile Sidebar Overlay -->
+  <div id="sidebar-overlay" class="fixed inset-0 bg-black/40 z-40 hidden lg:hidden backdrop-blur-sm transition-opacity"></div>
 
-  <!-- Header -->
-  <header class="bg-white dark:bg-uiu-dark border-b border-uiu-gray-200 dark:border-gray-700 shadow-sm">
-    <div class="container mx-auto px-4 h-16 flex justify-between items-center">
-      <div class="flex items-center gap-4">
-        <a href="https://www.uiu.ac.bd/" target="_blank" rel="noopener" class="flex items-center" title="United International University">
-          <img src="/static/uiu-logo.png" alt="UIU Logo" class="h-10 w-auto object-contain" />
-        </a>
-        <div class="h-8 w-px bg-uiu-gray-200 dark:border-gray-600 hidden sm:block"></div>
-        <div class="hidden sm:block">
-          <h1 class="text-lg font-bold text-uiu-black dark:text-white leading-tight">ASKUIU</h1>
-          <p class="text-[11px] text-uiu-gray-600 dark:text-gray-400 uppercase tracking-wide">AI Assistant</p>
+  <!-- Sidebar -->
+  <aside id="sidebar" class="fixed lg:static inset-y-0 left-0 z-50 w-72 bg-white/80 dark:bg-uiu-dark/80 backdrop-blur-xl border-r border-white/50 dark:border-white/10 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 flex flex-col shadow-2xl">
+    <!-- Sidebar Header -->
+    <div class="p-5 border-b border-uiu-gray-200 dark:border-white/10">
+      <a href="https://www.uiu.ac.bd/" target="_blank" rel="noopener" class="flex items-center gap-3 group">
+        <div class="w-11 h-11 rounded-xl bg-white shadow-md flex items-center justify-center p-1.5 group-hover:shadow-lg transition">
+          <img src="/static/uiu-logo.png" alt="UIU" class="w-full h-full object-contain" />
         </div>
-      </div>
-      <button id="theme-toggle" class="w-10 h-10 rounded-full border border-uiu-gray-200 dark:border-gray-600 hover:bg-uiu-gray-100 dark:hover:bg-gray-700 transition flex items-center justify-center text-uiu-dark dark:text-white" aria-label="Toggle dark mode">
-        <i class="fas fa-moon"></i>
+        <div>
+          <h1 class="font-bold text-lg leading-tight tracking-tight">ASKUIU</h1>
+          <p class="text-[10px] text-uiu-gray-600 dark:text-gray-400 uppercase tracking-widest">UIU Assistant</p>
+        </div>
+      </a>
+    </div>
+
+    <!-- New Chat Button -->
+    <div class="p-4">
+      <button id="new-chat-btn" class="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-uiu-orange text-white font-semibold hover:bg-uiu-orange-hover transition shadow-lg shadow-uiu-orange/20">
+        <i class="fas fa-plus"></i> New Chat
       </button>
     </div>
-  </header>
 
-  <!-- Chat Body -->
-  <main class="flex-1 container mx-auto max-w-3xl w-full p-4 flex flex-col overflow-hidden">
-    <div class="flex flex-col bg-white dark:bg-uiu-dark rounded-xl shadow-lg h-full overflow-hidden border border-uiu-gray-200 dark:border-gray-700 transition-colors duration-300 relative">
-      <!-- Accent top bar -->
-      <div class="h-1.5 bg-gradient-to-r from-uiu-orange via-[#ff9f43] to-uiu-orange"></div>
-
-      <!-- Chat Header -->
-      <div class="p-4 border-b border-uiu-gray-200 dark:border-gray-700 flex items-center justify-between transition-colors duration-300">
-        <div class="flex items-center">
-          <div class="w-11 h-11 rounded-full bg-uiu-orange-light dark:bg-uiu-orange/20 flex items-center justify-center mr-3 border-2 border-uiu-orange/20">
-            <i class="fas fa-robot text-uiu-orange text-lg"></i>
-          </div>
-          <div>
-            <h3 class="font-bold text-uiu-black dark:text-white">ASKUIU Assistant</h3>
-            <p class="text-xs text-uiu-gray-600 dark:text-gray-400 flex items-center">
-              <span class="inline-block w-2 h-2 rounded-full bg-green-500 mr-1.5 animate-pulse"></span> Online
-            </p>
-          </div>
-        </div>
-        <a href="https://www.uiu.ac.bd/contact-us/" target="_blank" rel="noopener" class="hidden sm:flex items-center gap-2 text-xs font-semibold text-uiu-orange hover:text-uiu-orange-hover transition">
-          <i class="fas fa-headset"></i> Contact UIU
-        </a>
+    <!-- Chat History -->
+    <div class="flex-1 overflow-y-auto px-4 pb-4 custom-scrollbar">
+      <p class="text-[11px] font-semibold text-uiu-gray-600 dark:text-gray-400 uppercase tracking-wider mb-3 px-2">Recent Chats</p>
+      <div id="chat-history" class="space-y-2">
+        <!-- History items injected by JS -->
       </div>
+    </div>
 
-      <!-- Messages Area -->
-      <div id="messages-container" class="flex-1 overflow-y-auto p-4 space-y-5 bg-uiu-gray dark:bg-uiu-black custom-scrollbar transition-colors duration-300">
-        <!-- Welcome message -->
-        <div class="flex items-start space-x-3 message-entry">
-          <div class="w-9 h-9 rounded-full bg-uiu-orange text-white flex items-center justify-center flex-shrink-0 shadow-sm">
-            <i class="fas fa-robot text-sm"></i>
-          </div>
-          <div class="bg-white dark:bg-gray-800 p-4 rounded-2xl rounded-tl-none shadow-sm border border-uiu-gray-200 dark:border-gray-700 max-w-md transition-colors duration-300">
-            <p class="text-uiu-black dark:text-gray-100 leading-relaxed">Hello! I'm <strong>ASKUIU</strong>, your friendly assistant for United International University. How can I help you today?</p>
-            <p class="text-[11px] text-uiu-gray-600 dark:text-gray-400 mt-2" data-timestamp></p>
-          </div>
+    <!-- Sidebar Footer -->
+    <div class="p-4 border-t border-uiu-gray-200 dark:border-white/10 space-y-2">
+      <a href="https://www.uiu.ac.bd/contact-us/" target="_blank" rel="noopener" class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-uiu-orange-light dark:hover:bg-white/5 text-sm text-uiu-dark dark:text-gray-300 transition">
+        <i class="fas fa-headset text-uiu-orange"></i> Contact UIU
+      </a>
+      <button id="theme-toggle" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-uiu-orange-light dark:hover:bg-white/5 text-sm text-uiu-dark dark:text-gray-300 transition">
+        <i class="fas fa-moon text-uiu-orange"></i> <span id="theme-label">Dark Mode</span>
+      </button>
+      <div class="pt-2 text-[10px] text-center text-uiu-gray-600 dark:text-gray-500">
+        &copy; <span id="year"></span> United International University
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="flex-1 flex flex-col h-full w-full lg:w-auto relative">
+    <!-- Top Header -->
+    <header class="h-16 px-4 lg:px-6 flex items-center justify-between bg-white/70 dark:bg-uiu-dark/70 backdrop-blur-lg border-b border-white/50 dark:border-white/10 z-30">
+      <div class="flex items-center gap-3">
+        <button id="sidebar-toggle" class="lg:hidden w-10 h-10 rounded-xl hover:bg-uiu-gray dark:hover:bg-white/10 flex items-center justify-center transition" aria-label="Toggle sidebar">
+          <i class="fas fa-bars text-uiu-dark dark:text-white"></i>
+        </button>
+        <div class="hidden sm:block">
+          <h2 class="font-semibold text-sm lg:text-base text-uiu-black dark:text-white">ASKUIU Assistant</h2>
+          <p class="text-[10px] text-uiu-gray-600 dark:text-gray-400 flex items-center">
+            <span class="inline-block w-1.5 h-1.5 rounded-full bg-green-500 mr-1.5 animate-pulse"></span> Online — Powered by UIU knowledgebase
+          </p>
         </div>
+      </div>
+      <a href="https://www.uiu.ac.bd/" target="_blank" rel="noopener" class="text-xs font-semibold text-uiu-orange hover:text-uiu-orange-hover transition flex items-center gap-1.5">
+        uiu.ac.bd <i class="fas fa-external-link-alt text-[10px]"></i>
+      </a>
+    </header>
 
-        <!-- Quick Questions -->
-        <div id="quick-questions" class="flex flex-wrap gap-2 pl-12 message-entry">
-          <button class="quick-question px-4 py-2 bg-white dark:bg-gray-800 border border-uiu-gray-200 dark:border-gray-600 text-uiu-dark dark:text-gray-200 rounded-full text-sm font-medium hover:border-uiu-orange hover:text-uiu-orange dark:hover:text-uiu-orange transition shadow-sm">
-            What are the top programs at UIU?
-          </button>
-          <button class="quick-question px-4 py-2 bg-white dark:bg-gray-800 border border-uiu-gray-200 dark:border-gray-600 text-uiu-dark dark:text-gray-200 rounded-full text-sm font-medium hover:border-uiu-orange hover:text-uiu-orange dark:hover:text-uiu-orange transition shadow-sm">
-            Tell me about scholarships
-          </button>
-          <button class="quick-question px-4 py-2 bg-white dark:bg-gray-800 border border-uiu-gray-200 dark:border-gray-600 text-uiu-dark dark:text-gray-200 rounded-full text-sm font-medium hover:border-uiu-orange hover:text-uiu-orange dark:hover:text-uiu-orange transition shadow-sm">
-            Who is the CSE head?
-          </button>
-          <button class="quick-question px-4 py-2 bg-white dark:bg-gray-800 border border-uiu-gray-200 dark:border-gray-600 text-uiu-dark dark:text-gray-200 rounded-full text-sm font-medium hover:border-uiu-orange hover:text-uiu-orange dark:hover:text-uiu-orange transition shadow-sm">
-            Campus facilities
-          </button>
+    <!-- Chat Area -->
+    <div id="chat-container" class="flex-1 flex flex-col overflow-hidden relative">
+      <!-- Empty State / Messages -->
+      <div id="messages-container" class="flex-1 overflow-y-auto p-4 lg:p-8 space-y-6 custom-scrollbar scroll-smooth">
+        <!-- Welcome Section -->
+        <div id="welcome-section" class="max-w-2xl mx-auto text-center pt-8 lg:pt-16 message-entry">
+          <div class="w-20 h-20 mx-auto rounded-2xl bg-white dark:bg-uiu-dark shadow-xl flex items-center justify-center p-3 mb-6">
+            <img src="/static/uiu-logo.png" alt="UIU" class="w-full h-full object-contain" />
+          </div>
+          <h2 class="text-3xl lg:text-4xl font-bold mb-3 text-uiu-black dark:text-white">How can I help you?</h2>
+          <p class="text-uiu-gray-600 dark:text-gray-400 mb-8 max-w-md mx-auto">Ask anything about admissions, programs, scholarships, campus life, or university services at United International University.</p>
+
+          <!-- Quick Questions Grid -->
+          <div id="quick-questions" class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-left">
+            <button class="quick-question group p-4 rounded-2xl bg-white dark:bg-uiu-dark border border-uiu-gray-200 dark:border-white/10 hover:border-uiu-orange hover:shadow-lg hover:shadow-uiu-orange/10 transition">
+              <i class="fas fa-graduation-cap text-uiu-orange mb-2 text-lg"></i>
+              <p class="font-semibold text-sm text-uiu-black dark:text-white">Top programs at UIU</p>
+              <p class="text-xs text-uiu-gray-600 dark:text-gray-400 mt-1">Explore undergraduate and graduate programs.</p>
+            </button>
+            <button class="quick-question group p-4 rounded-2xl bg-white dark:bg-uiu-dark border border-uiu-gray-200 dark:border-white/10 hover:border-uiu-orange hover:shadow-lg hover:shadow-uiu-orange/10 transition">
+              <i class="fas fa-scholarship text-uiu-orange mb-2 text-lg"></i>
+              <p class="font-semibold text-sm text-uiu-black dark:text-white">Scholarships & waivers</p>
+              <p class="text-xs text-uiu-gray-600 dark:text-gray-400 mt-1">Learn about tuition fees and financial aid.</p>
+            </button>
+            <button class="quick-question group p-4 rounded-2xl bg-white dark:bg-uiu-dark border border-uiu-gray-200 dark:border-white/10 hover:border-uiu-orange hover:shadow-lg hover:shadow-uiu-orange/10 transition">
+              <i class="fas fa-user-tie text-uiu-orange mb-2 text-lg"></i>
+              <p class="font-semibold text-sm text-uiu-black dark:text-white">CSE department head</p>
+              <p class="text-xs text-uiu-gray-600 dark:text-gray-400 mt-1">Find faculty and authority information.</p>
+            </button>
+            <button class="quick-question group p-4 rounded-2xl bg-white dark:bg-uiu-dark border border-uiu-gray-200 dark:border-white/10 hover:border-uiu-orange hover:shadow-lg hover:shadow-uiu-orange/10 transition">
+              <i class="fas fa-building text-uiu-orange mb-2 text-lg"></i>
+              <p class="font-semibold text-sm text-uiu-black dark:text-white">Campus facilities</p>
+              <p class="text-xs text-uiu-gray-600 dark:text-gray-400 mt-1">Discover labs, library, sports, and more.</p>
+            </button>
+          </div>
         </div>
       </div>
 
       <!-- Typing Indicator -->
-      <div class="typing-indicator hidden px-4 py-3 bg-uiu-gray dark:bg-uiu-black border-t border-uiu-gray-200 dark:border-gray-700 transition-colors duration-300">
-        <div class="flex items-center">
-          <div class="w-9 h-9 rounded-full bg-uiu-orange text-white flex items-center justify-center mr-3">
-            <i class="fas fa-robot text-sm"></i>
+      <div class="typing-indicator hidden px-4 lg:px-8 pb-4">
+        <div class="flex items-start max-w-3xl mx-auto">
+          <div class="w-8 h-8 rounded-full bg-uiu-orange text-white flex items-center justify-center mr-3 flex-shrink-0">
+            <i class="fas fa-robot text-xs"></i>
           </div>
-          <div class="flex space-x-1.5 bg-white dark:bg-gray-800 px-4 py-3 rounded-2xl rounded-tl-none shadow-sm border border-uiu-gray-200 dark:border-gray-700">
-            <div class="w-2 h-2 rounded-full bg-uiu-orange animate-bounce"></div>
-            <div class="w-2 h-2 rounded-full bg-uiu-orange animate-bounce delay-150"></div>
-            <div class="w-2 h-2 rounded-full bg-uiu-orange animate-bounce delay-300"></div>
+          <div class="bg-white dark:bg-uiu-dark px-4 py-3 rounded-2xl rounded-tl-none shadow-sm border border-uiu-gray-200 dark:border-white/10">
+            <div class="flex space-x-1.5">
+              <div class="w-2 h-2 rounded-full bg-uiu-orange animate-bounce"></div>
+              <div class="w-2 h-2 rounded-full bg-uiu-orange animate-bounce delay-150"></div>
+              <div class="w-2 h-2 rounded-full bg-uiu-orange animate-bounce delay-300"></div>
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- Message Input -->
-      <form id="query-form" class="border-t border-uiu-gray-200 dark:border-gray-700 bg-white dark:bg-uiu-dark p-4 transition-colors duration-300">
-        <div class="flex items-center gap-3">
-          <div class="flex-1 relative">
+      <!-- Input Area -->
+      <div class="p-4 lg:p-6 bg-white/70 dark:bg-uiu-dark/70 backdrop-blur-lg border-t border-white/50 dark:border-white/10">
+        <div class="max-w-3xl mx-auto">
+          <form id="query-form" class="relative">
             <input type="text" id="user_message" name="user_message" placeholder="Ask anything about UIU..."
-              class="w-full p-3.5 pr-12 rounded-full border border-uiu-gray-200 dark:border-gray-600 bg-uiu-gray dark:bg-gray-800 text-uiu-black dark:text-white placeholder-uiu-gray-600 focus:outline-none focus:ring-2 focus:ring-uiu-orange/50 focus:border-uiu-orange transition"/>
-          </div>
-          <button type="submit" id="send-button"
-            class="p-3.5 rounded-full bg-uiu-orange text-white hover:bg-uiu-orange-hover transition disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
-            aria-label="Send message">
-            <i class="fas fa-paper-plane"></i>
-          </button>
+              class="w-full pl-5 pr-14 py-4 rounded-2xl bg-white dark:bg-uiu-black border border-uiu-gray-200 dark:border-white/10 text-uiu-black dark:text-white placeholder-uiu-gray-600 focus:outline-none focus:ring-2 focus:ring-uiu-orange/50 focus:border-uiu-orange transition shadow-sm"/>
+            <button type="submit" id="send-button"
+              class="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-xl bg-uiu-orange text-white hover:bg-uiu-orange-hover transition disabled:opacity-50 disabled:cursor-not-allowed shadow-md flex items-center justify-center"
+              aria-label="Send message">
+              <i class="fas fa-paper-plane text-sm"></i>
+            </button>
+          </form>
+          <p class="text-[11px] text-uiu-gray-600 dark:text-gray-500 text-center mt-2">ASKUIU may produce inaccurate information. Always verify critical details with official UIU sources.</p>
         </div>
-        <p class="text-[11px] text-uiu-gray-600 dark:text-gray-500 mt-2 text-center">Press <kbd class="px-1.5 py-0.5 bg-uiu-gray-200 dark:bg-gray-700 rounded text-[10px]">Enter</kbd> to send</p>
-      </form>
+      </div>
     </div>
   </main>
-
-  <!-- Footer -->
-  <footer class="bg-white dark:bg-uiu-dark border-t border-uiu-gray-200 dark:border-gray-700 py-3">
-    <div class="container mx-auto px-4 text-center text-[11px] text-uiu-gray-600 dark:text-gray-500">
-      <span class="font-semibold text-uiu-orange">ASKUIU</span> &copy; <span id="year"></span> United International University. All rights reserved.
-    </div>
-  </footer>
 
   <script src="/static/script.js"></script>
 </body>
