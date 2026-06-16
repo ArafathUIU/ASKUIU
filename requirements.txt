@@ -4,10 +4,6 @@ pandas
 faiss-cpu
 sentence-transformers
 numpy
-langchain
-langchain-community
-openai
+httpx
 torch
-celery
-redis
 gunicorn

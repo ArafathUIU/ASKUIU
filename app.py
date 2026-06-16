@@ -4,7 +4,7 @@ import torch
 import faiss
 import numpy as np
 from transformers import AutoTokenizer, AutoModel
-import openai
+import httpx
 import pickle
 import os
 from dotenv import load_dotenv
@@ -13,9 +13,11 @@ app = Flask(__name__)
 
 # Load environment variables
 load_dotenv()
-openai.api_key = os.getenv('OPENAI_API_KEY')
-if not openai.api_key:
-    raise ValueError("OPENAI_API_KEY not found in environment variables. Please set it in .env file.")
+OPENCODEGO_API_KEY = os.getenv('OPENCODEGO_API_KEY')
+OPENCODEGO_BASE_URL = os.getenv('OPENCODEGO_BASE_URL', 'https://api.opencode.ai/v1')
+OPENCODEGO_MODEL = os.getenv('OPENCODEGO_MODEL', 'opencode-go/kimi-k2.7-code')
+if not OPENCODEGO_API_KEY:
+    raise ValueError("OPENCODEGO_API_KEY not found in environment variables. Please set it in .env file.")
 
 # Device configuration
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -81,17 +83,15 @@ def process_context(docs, max_tokens=1536):
             break
     return "\n".join(f"- {doc}" for doc in processed_docs)
 
-# ---------------------- GPT-4 Answer Generation ----------------------
-def generate_answer_with_gpt4(question, context, max_tokens=300):
-    prompt = f"""
-Use the following context to answer the question. If the context is insufficient, say:
+# ---------------------- Opencode Go Answer Generation ----------------------
+def generate_answer(question, context, max_tokens=300):
+    prompt = f"""Use the following context to answer the question. If the context is insufficient, say:
 "Sorry, I don't have enough information to answer that yet."
 
 Question: {question}
 
 Context:
-{context}
-"""
+{context}"""
 
     messages = [
         {"role": "system", "content": "You are an expert assistant for United International University (UIU). Based on the following context, provide a concise and accurate answer to the query in 2-3 sentences. Cite relevant details from the context and ensure clarity."},
@@ -99,14 +99,27 @@ Context:
     ]
 
     try:
-        response = openai.ChatCompletion.create(
-            model="gpt-4o-mini",
-            messages=messages,
-            max_tokens=max_tokens
-        )
-        return response.choices[0].message['content'].strip()
+        with httpx.Client(timeout=60.0) as client:
+            response = client.post(
+                f"{OPENCODEGO_BASE_URL}/chat/completions",
+                headers={
+                    "Authorization": f"Bearer {OPENCODEGO_API_KEY}",
+                    "Content-Type": "application/json"
+                },
+                json={
+                    "model": OPENCODEGO_MODEL,
+                    "messages": messages,
+                    "max_tokens": max_tokens
+                }
+            )
+            response.raise_for_status()
+            data = response.json()
+            return data["choices"][0]["message"]["content"].strip()
+    except httpx.HTTPStatusError as e:
+        print(f"Opencode Go API HTTP error: {e.response.status_code} - {e.response.text}")
+        return "Sorry, the language model service returned an error."
     except Exception as e:
-        print(f"Error generating response with GPT-4: {e}")
+        print(f"Error generating response with Opencode Go: {e}")
         return "Sorry, an error occurred while generating the response."
 
 # ---------------------- Flask Routes ----------------------
@@ -129,8 +142,8 @@ def chat():
             # 3. Build context string
             final_context = process_context(retrieved_articles)
 
-            # 4. Ask GPT-4 with context
-            bot_answer = generate_answer_with_gpt4(user_question, final_context)
+            # 4. Ask Opencode Go with context
+            bot_answer = generate_answer(user_question, final_context)
 
             return jsonify({'response': bot_answer})
         except Exception as e:
