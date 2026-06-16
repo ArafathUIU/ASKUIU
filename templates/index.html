@@ -4,28 +4,35 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <meta name="description" content="ASKUIU - AI assistant for United International University"/>
-  <title>ASKUIU - Chat Interface</title>
+  <title>ASKUIU - United International University</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   <link rel="stylesheet" href="/static/style.css" />
-  <link rel="icon" href="/static/favicon.svg" type="image/svg+xml" />
+  <link rel="icon" href="/static/favicon.png" type="image/png" />
   <script>
     tailwind.config = {
       darkMode: 'class',
       theme: {
         extend: {
+          fontFamily: {
+            sans: ['"Open Sans"', 'sans-serif'],
+          },
           colors: {
-            brand: {
-              50: '#fff7ed',
-              100: '#ffedd5',
-              200: '#fed7aa',
-              300: '#fdba74',
-              400: '#fb923c',
-              500: '#f97316',
-              600: '#ea580c',
-              700: '#c2410c',
-              800: '#9a3412',
-              900: '#7c2d12',
+            uiu: {
+              orange: '#F68B1F',
+              'orange-hover': '#E07D18',
+              'orange-light': '#FFF5E8',
+              dark: '#282828',
+              black: '#1A1A1A',
+              gray: '#F5F5F5',
+              'gray-100': '#EFEFEF',
+              'gray-200': '#E5E5E5',
+              'gray-600': '#6B7280',
+              'gray-700': '#374151',
+              'gray-800': '#1F2937',
             }
           }
         }
@@ -34,20 +41,31 @@
   </script>
 </head>
 
-<body class="bg-brand-50 dark:bg-gray-900 h-screen flex flex-col transition-colors duration-300">
+<body class="bg-uiu-gray dark:bg-uiu-black h-screen flex flex-col font-sans transition-colors duration-300">
+  <!-- Top Global Bar (UIU style) -->
+  <div class="bg-uiu-black text-white text-xs py-2">
+    <div class="container mx-auto px-4 flex justify-between items-center">
+      <span class="text-gray-300 hidden sm:inline">United International University</span>
+      <div class="flex items-center gap-4 ml-auto">
+        <a href="https://www.uiu.ac.bd/" target="_blank" rel="noopener" class="hover:text-uiu-orange transition">uiu.ac.bd <i class="fas fa-external-link-alt text-[10px] ml-0.5"></i></a>
+      </div>
+    </div>
+  </div>
+
   <!-- Header -->
-  <header class="bg-gradient-to-r from-brand-500 to-brand-600 text-white p-4 shadow-md">
-    <div class="container mx-auto flex justify-between items-center">
-      <div class="flex items-center space-x-3">
-        <div class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
-          <i class="fas fa-comment-dots text-white text-xl"></i>
-        </div>
-        <div>
-          <h1 class="text-2xl font-bold">ASKUIU</h1>
-          <p class="text-xs text-brand-100">Your UIU assistant</p>
+  <header class="bg-white dark:bg-uiu-dark border-b border-uiu-gray-200 dark:border-gray-700 shadow-sm">
+    <div class="container mx-auto px-4 h-16 flex justify-between items-center">
+      <div class="flex items-center gap-4">
+        <a href="https://www.uiu.ac.bd/" target="_blank" rel="noopener" class="flex items-center" title="United International University">
+          <img src="/static/uiu-logo.png" alt="UIU Logo" class="h-10 w-auto object-contain" />
+        </a>
+        <div class="h-8 w-px bg-uiu-gray-200 dark:border-gray-600 hidden sm:block"></div>
+        <div class="hidden sm:block">
+          <h1 class="text-lg font-bold text-uiu-black dark:text-white leading-tight">ASKUIU</h1>
+          <p class="text-[11px] text-uiu-gray-600 dark:text-gray-400 uppercase tracking-wide">AI Assistant</p>
         </div>
       </div>
-      <button id="theme-toggle" class="p-2 rounded-full hover:bg-white/20 transition" aria-label="Toggle dark mode">
+      <button id="theme-toggle" class="w-10 h-10 rounded-full border border-uiu-gray-200 dark:border-gray-600 hover:bg-uiu-gray-100 dark:hover:bg-gray-700 transition flex items-center justify-center text-uiu-dark dark:text-white" aria-label="Toggle dark mode">
         <i class="fas fa-moon"></i>
       </button>
     </div>
@@ -55,81 +73,96 @@
 
   <!-- Chat Body -->
   <main class="flex-1 container mx-auto max-w-3xl w-full p-4 flex flex-col overflow-hidden">
-    <div class="flex flex-col bg-white dark:bg-gray-800 rounded-2xl shadow-lg h-full overflow-hidden border border-brand-100 dark:border-gray-700 transition-colors duration-300">
+    <div class="flex flex-col bg-white dark:bg-uiu-dark rounded-xl shadow-lg h-full overflow-hidden border border-uiu-gray-200 dark:border-gray-700 transition-colors duration-300 relative">
+      <!-- Accent top bar -->
+      <div class="h-1.5 bg-gradient-to-r from-uiu-orange via-[#ff9f43] to-uiu-orange"></div>
+
       <!-- Chat Header -->
-      <div class="p-4 bg-brand-100 dark:bg-gray-700 border-b border-brand-200 dark:border-gray-600 flex items-center transition-colors duration-300">
-        <div class="w-10 h-10 rounded-full bg-brand-300 dark:bg-brand-600 flex items-center justify-center mr-3">
-          <i class="fas fa-robot text-brand-700 dark:text-white"></i>
+      <div class="p-4 border-b border-uiu-gray-200 dark:border-gray-700 flex items-center justify-between transition-colors duration-300">
+        <div class="flex items-center">
+          <div class="w-11 h-11 rounded-full bg-uiu-orange-light dark:bg-uiu-orange/20 flex items-center justify-center mr-3 border-2 border-uiu-orange/20">
+            <i class="fas fa-robot text-uiu-orange text-lg"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-uiu-black dark:text-white">ASKUIU Assistant</h3>
+            <p class="text-xs text-uiu-gray-600 dark:text-gray-400 flex items-center">
+              <span class="inline-block w-2 h-2 rounded-full bg-green-500 mr-1.5 animate-pulse"></span> Online
+            </p>
+          </div>
         </div>
-        <div>
-          <h3 class="font-semibold text-brand-800 dark:text-white">ASKUIU Assistant</h3>
-          <p class="text-xs text-brand-600 dark:text-brand-200">
-            <span class="inline-block w-2 h-2 rounded-full bg-green-500 mr-1"></span> Online
-          </p>
-        </div>
+        <a href="https://www.uiu.ac.bd/contact-us/" target="_blank" rel="noopener" class="hidden sm:flex items-center gap-2 text-xs font-semibold text-uiu-orange hover:text-uiu-orange-hover transition">
+          <i class="fas fa-headset"></i> Contact UIU
+        </a>
       </div>
 
       <!-- Messages Area -->
-      <div id="messages-container" class="flex-1 overflow-y-auto p-4 space-y-4 bg-brand-50 dark:bg-gray-900 custom-scrollbar transition-colors duration-300">
+      <div id="messages-container" class="flex-1 overflow-y-auto p-4 space-y-5 bg-uiu-gray dark:bg-uiu-black custom-scrollbar transition-colors duration-300">
         <!-- Welcome message -->
-        <div class="flex items-start space-x-2 message-entry">
-          <div class="w-8 h-8 rounded-full bg-brand-300 dark:bg-brand-600 flex items-center justify-center flex-shrink-0">
-            <i class="fas fa-robot text-brand-700 dark:text-white text-sm"></i>
+        <div class="flex items-start space-x-3 message-entry">
+          <div class="w-9 h-9 rounded-full bg-uiu-orange text-white flex items-center justify-center flex-shrink-0 shadow-sm">
+            <i class="fas fa-robot text-sm"></i>
           </div>
-          <div class="bg-white dark:bg-gray-800 p-3 rounded-2xl rounded-tl-none shadow-sm border border-brand-100 dark:border-gray-700 max-w-md transition-colors duration-300">
-            <p class="text-gray-800 dark:text-gray-100">Hello! I'm ASKUIU, your friendly assistant for United International University. How can I help you today?</p>
-            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1" data-timestamp></p>
+          <div class="bg-white dark:bg-gray-800 p-4 rounded-2xl rounded-tl-none shadow-sm border border-uiu-gray-200 dark:border-gray-700 max-w-md transition-colors duration-300">
+            <p class="text-uiu-black dark:text-gray-100 leading-relaxed">Hello! I'm <strong>ASKUIU</strong>, your friendly assistant for United International University. How can I help you today?</p>
+            <p class="text-[11px] text-uiu-gray-600 dark:text-gray-400 mt-2" data-timestamp></p>
           </div>
         </div>
 
         <!-- Quick Questions -->
-        <div id="quick-questions" class="flex flex-wrap gap-2 pl-10 message-entry">
-          <button class="quick-question px-3 py-1.5 bg-white dark:bg-gray-800 border border-brand-200 dark:border-gray-600 text-brand-700 dark:text-brand-300 rounded-full text-sm hover:bg-brand-100 dark:hover:bg-gray-700 transition">
+        <div id="quick-questions" class="flex flex-wrap gap-2 pl-12 message-entry">
+          <button class="quick-question px-4 py-2 bg-white dark:bg-gray-800 border border-uiu-gray-200 dark:border-gray-600 text-uiu-dark dark:text-gray-200 rounded-full text-sm font-medium hover:border-uiu-orange hover:text-uiu-orange dark:hover:text-uiu-orange transition shadow-sm">
             What are the top programs at UIU?
           </button>
-          <button class="quick-question px-3 py-1.5 bg-white dark:bg-gray-800 border border-brand-200 dark:border-gray-600 text-brand-700 dark:text-brand-300 rounded-full text-sm hover:bg-brand-100 dark:hover:bg-gray-700 transition">
+          <button class="quick-question px-4 py-2 bg-white dark:bg-gray-800 border border-uiu-gray-200 dark:border-gray-600 text-uiu-dark dark:text-gray-200 rounded-full text-sm font-medium hover:border-uiu-orange hover:text-uiu-orange dark:hover:text-uiu-orange transition shadow-sm">
             Tell me about scholarships
           </button>
-          <button class="quick-question px-3 py-1.5 bg-white dark:bg-gray-800 border border-brand-200 dark:border-gray-600 text-brand-700 dark:text-brand-300 rounded-full text-sm hover:bg-brand-100 dark:hover:bg-gray-700 transition">
+          <button class="quick-question px-4 py-2 bg-white dark:bg-gray-800 border border-uiu-gray-200 dark:border-gray-600 text-uiu-dark dark:text-gray-200 rounded-full text-sm font-medium hover:border-uiu-orange hover:text-uiu-orange dark:hover:text-uiu-orange transition shadow-sm">
             Who is the CSE head?
           </button>
-          <button class="quick-question px-3 py-1.5 bg-white dark:bg-gray-800 border border-brand-200 dark:border-gray-600 text-brand-700 dark:text-brand-300 rounded-full text-sm hover:bg-brand-100 dark:hover:bg-gray-700 transition">
+          <button class="quick-question px-4 py-2 bg-white dark:bg-gray-800 border border-uiu-gray-200 dark:border-gray-600 text-uiu-dark dark:text-gray-200 rounded-full text-sm font-medium hover:border-uiu-orange hover:text-uiu-orange dark:hover:text-uiu-orange transition shadow-sm">
             Campus facilities
           </button>
         </div>
       </div>
 
       <!-- Typing Indicator -->
-      <div class="typing-indicator hidden px-4 py-2 bg-brand-100 dark:bg-gray-700 transition-colors duration-300">
+      <div class="typing-indicator hidden px-4 py-3 bg-uiu-gray dark:bg-uiu-black border-t border-uiu-gray-200 dark:border-gray-700 transition-colors duration-300">
         <div class="flex items-center">
-          <div class="w-8 h-8 rounded-full bg-brand-300 dark:bg-brand-600 flex items-center justify-center mr-2">
-            <i class="fas fa-robot text-brand-700 dark:text-white text-sm"></i>
+          <div class="w-9 h-9 rounded-full bg-uiu-orange text-white flex items-center justify-center mr-3">
+            <i class="fas fa-robot text-sm"></i>
           </div>
-          <div class="flex space-x-1">
-            <div class="w-2 h-2 rounded-full bg-brand-500 animate-bounce"></div>
-            <div class="w-2 h-2 rounded-full bg-brand-500 animate-bounce delay-150"></div>
-            <div class="w-2 h-2 rounded-full bg-brand-500 animate-bounce delay-300"></div>
+          <div class="flex space-x-1.5 bg-white dark:bg-gray-800 px-4 py-3 rounded-2xl rounded-tl-none shadow-sm border border-uiu-gray-200 dark:border-gray-700">
+            <div class="w-2 h-2 rounded-full bg-uiu-orange animate-bounce"></div>
+            <div class="w-2 h-2 rounded-full bg-uiu-orange animate-bounce delay-150"></div>
+            <div class="w-2 h-2 rounded-full bg-uiu-orange animate-bounce delay-300"></div>
           </div>
         </div>
       </div>
 
       <!-- Message Input -->
-      <form id="query-form" class="border-t border-brand-200 dark:border-gray-600 bg-white dark:bg-gray-800 p-3 transition-colors duration-300">
-        <div class="flex items-center">
+      <form id="query-form" class="border-t border-uiu-gray-200 dark:border-gray-700 bg-white dark:bg-uiu-dark p-4 transition-colors duration-300">
+        <div class="flex items-center gap-3">
           <div class="flex-1 relative">
-            <input type="text" id="user_message" name="user_message" placeholder="Type your message..."
-              class="w-full p-3 pr-12 rounded-full border border-brand-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-300 dark:focus:ring-brand-500 transition"/>
+            <input type="text" id="user_message" name="user_message" placeholder="Ask anything about UIU..."
+              class="w-full p-3.5 pr-12 rounded-full border border-uiu-gray-200 dark:border-gray-600 bg-uiu-gray dark:bg-gray-800 text-uiu-black dark:text-white placeholder-uiu-gray-600 focus:outline-none focus:ring-2 focus:ring-uiu-orange/50 focus:border-uiu-orange transition"/>
           </div>
           <button type="submit" id="send-button"
-            class="ml-2 p-3 rounded-full bg-brand-500 text-white hover:bg-brand-600 transition disabled:opacity-50 disabled:cursor-not-allowed"
+            class="p-3.5 rounded-full bg-uiu-orange text-white hover:bg-uiu-orange-hover transition disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
             aria-label="Send message">
             <i class="fas fa-paper-plane"></i>
           </button>
         </div>
-        <p class="text-xs text-gray-400 dark:text-gray-500 mt-2 text-center">Press Enter to send</p>
+        <p class="text-[11px] text-uiu-gray-600 dark:text-gray-500 mt-2 text-center">Press <kbd class="px-1.5 py-0.5 bg-uiu-gray-200 dark:bg-gray-700 rounded text-[10px]">Enter</kbd> to send</p>
       </form>
     </div>
   </main>
+
+  <!-- Footer -->
+  <footer class="bg-white dark:bg-uiu-dark border-t border-uiu-gray-200 dark:border-gray-700 py-3">
+    <div class="container mx-auto px-4 text-center text-[11px] text-uiu-gray-600 dark:text-gray-500">
+      <span class="font-semibold text-uiu-orange">ASKUIU</span> &copy; <span id="year"></span> United International University. All rights reserved.
+    </div>
+  </footer>
 
   <script src="/static/script.js"></script>
 </body>

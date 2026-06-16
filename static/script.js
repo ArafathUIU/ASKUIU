@@ -6,6 +6,11 @@ document.addEventListener('DOMContentLoaded', function () {
     const sendButton = document.getElementById('send-button');
     const themeToggle = document.getElementById('theme-toggle');
     const quickQuestions = document.getElementById('quick-questions');
+    const yearSpan = document.getElementById('year');
+
+    if (yearSpan) {
+        yearSpan.textContent = new Date().getFullYear();
+    }
 
     // Theme handling
     function initTheme() {
@@ -70,7 +75,7 @@ document.addEventListener('DOMContentLoaded', function () {
     function linkify(text) {
         const urlRegex = /(https?:\/\/[^\s]+)/g;
         return escapeHtml(text).replace(urlRegex, function (url) {
-            return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="text-brand-600 dark:text-brand-400 underline">${url}</a>`;
+            return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="text-uiu-orange hover:text-uiu-orange-hover underline">${url}</a>`;
         });
     }
 
@@ -83,22 +88,22 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (!isUser) {
             messageDiv.innerHTML = `
-                <div class="w-8 h-8 rounded-full bg-brand-300 dark:bg-brand-600 flex items-center justify-center mr-2 flex-shrink-0">
-                    <i class="fas fa-robot text-brand-700 dark:text-white text-sm"></i>
+                <div class="w-9 h-9 rounded-full bg-uiu-orange text-white flex items-center justify-center mr-2 flex-shrink-0 shadow-sm">
+                    <i class="fas fa-robot text-sm"></i>
                 </div>
-                <div class="max-w-[85%] md:max-w-md lg:max-w-lg bg-white dark:bg-gray-800 p-3 rounded-2xl rounded-tl-none shadow-sm border border-brand-100 dark:border-gray-700 transition-colors duration-300">
-                    <div class="text-gray-800 dark:text-gray-100 text-sm leading-relaxed">${linkify(text)}</div>
-                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">${time}</p>
+                <div class="max-w-[85%] md:max-w-md lg:max-w-lg bg-white dark:bg-gray-800 p-4 rounded-2xl rounded-tl-none shadow-sm border border-uiu-gray-200 dark:border-gray-700 transition-colors duration-300">
+                    <div class="text-uiu-black dark:text-gray-100 text-sm leading-relaxed">${linkify(text)}</div>
+                    <p class="text-[11px] text-uiu-gray-600 dark:text-gray-400 mt-2">${time}</p>
                 </div>
             `;
         } else {
             messageDiv.innerHTML = `
-                <div class="max-w-[85%] md:max-w-md lg:max-w-lg bg-brand-500 text-white p-3 rounded-2xl rounded-tr-none shadow-sm">
+                <div class="max-w-[85%] md:max-w-md lg:max-w-lg bg-uiu-orange text-white p-4 rounded-2xl rounded-tr-none shadow-md">
                     <div class="text-sm leading-relaxed">${escapeHtml(text)}</div>
-                    <p class="text-xs text-brand-100 mt-1">${time}</p>
+                    <p class="text-[11px] text-white/80 mt-2">${time}</p>
                 </div>
-                <div class="w-8 h-8 rounded-full bg-brand-100 dark:bg-gray-700 flex items-center justify-center ml-2 flex-shrink-0">
-                    <i class="fas fa-user text-brand-600 dark:text-brand-300 text-sm"></i>
+                <div class="w-9 h-9 rounded-full bg-uiu-orange-light dark:bg-gray-700 flex items-center justify-center ml-2 flex-shrink-0 border border-uiu-orange/20">
+                    <i class="fas fa-user text-uiu-orange dark:text-uiu-orange text-sm"></i>
                 </div>
             `;
         }

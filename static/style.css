@@ -1,11 +1,24 @@
 :root {
-    --scrollbar-track: rgba(255, 166, 0, 0.1);
-    --scrollbar-thumb: rgba(255, 166, 0, 0.4);
+    --uiu-orange: #F68B1F;
+    --uiu-orange-hover: #E07D18;
+    --uiu-orange-light: #FFF5E8;
+    --uiu-dark: #282828;
+    --uiu-black: #1A1A1A;
+    --uiu-gray: #F5F5F5;
+    --uiu-gray-200: #E5E5E5;
+
+    --scrollbar-track: rgba(246, 139, 31, 0.08);
+    --scrollbar-thumb: rgba(246, 139, 31, 0.35);
 }
 
 .dark {
-    --scrollbar-track: rgba(75, 85, 99, 0.3);
-    --scrollbar-thumb: rgba(249, 115, 22, 0.5);
+    --scrollbar-track: rgba(75, 85, 99, 0.25);
+    --scrollbar-thumb: rgba(246, 139, 31, 0.55);
+}
+
+/* Base typography */
+body {
+    font-family: 'Open Sans', sans-serif;
 }
 
 /* Custom scrollbar */
@@ -66,7 +79,7 @@
 /* Focus styles for accessibility */
 button:focus-visible,
 input:focus-visible {
-    outline: 2px solid #f97316;
+    outline: 2px solid var(--uiu-orange);
     outline-offset: 2px;
 }
 
@@ -74,4 +87,15 @@ input:focus-visible {
 * {
     transition-property: background-color, border-color, color;
     transition-duration: 150ms;
+}
+
+/* Selection color */
+::selection {
+    background-color: rgba(246, 139, 31, 0.25);
+    color: inherit;
+}
+
+/* Utility to prevent layout shift from scrollbar */
+html {
+    overflow-y: scroll;
 }
