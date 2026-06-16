@@ -7,3 +7,5 @@ numpy
 httpx
 torch
 gunicorn
+pytest
+pytest-mock

@@ -1,9 +1,11 @@
+import logging
 import os
 
 import httpx
 from dotenv import load_dotenv
 
 load_dotenv()
+logger = logging.getLogger(__name__)
 
 
 class Generator:
@@ -14,15 +16,19 @@ class Generator:
         model=None,
     ):
         self.api_key = api_key or os.getenv("OPENCODEGO_API_KEY")
-        self.base_url = (base_url or os.getenv("OPENCODEGO_BASE_URL", "https://api.opencode.ai/v1")).rstrip("/")
-        self.model = model or os.getenv("OPENCODEGO_MODEL", "opencode-go/kimi-k2.7-code")
+        self.base_url = (
+            base_url or os.getenv("OPENCODEGO_BASE_URL", "https://api.opencode.ai/v1")
+        ).rstrip("/")
+        self.model = model or os.getenv(
+            "OPENCODEGO_MODEL", "opencode-go/kimi-k2.7-code"
+        )
 
+    def generate_answer(self, retrieved_docs, query, max_tokens=300):
         if not self.api_key:
+            logger.error("OPENCODEGO_API_KEY is not configured")
             raise ValueError(
                 "OPENCODEGO_API_KEY not found. Set it in your environment or .env file."
             )
-
-    def generate_answer(self, retrieved_docs, query, max_tokens=300):
         context = self._build_context(retrieved_docs)
         return self._call_llm(query, context, max_tokens=max_tokens)
 
@@ -79,8 +85,12 @@ Context:
                 data = response.json()
                 return data["choices"][0]["message"]["content"].strip()
         except httpx.HTTPStatusError as e:
-            print(f"Opencode Go API HTTP error: {e.response.status_code} - {e.response.text}")
+            logger.error(
+                "Opencode Go API HTTP error: %s - %s",
+                e.response.status_code,
+                e.response.text,
+            )
             return "Sorry, the language model service returned an error."
         except Exception as e:
-            print(f"Error generating response with Opencode Go: {e}")
+            logger.exception("Error generating response with Opencode Go")
             return "Sorry, an error occurred while generating the response."

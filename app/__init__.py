@@ -1,10 +1,31 @@
+import logging
+import os
+import sys
+
 from flask import Flask
 
 from config import DevelopmentConfig, ProductionConfig
 
 
+def configure_logging(level=logging.INFO):
+    root_logger = logging.getLogger()
+    root_logger.setLevel(level)
+    if not root_logger.handlers:
+        handler = logging.StreamHandler(sys.stdout)
+        formatter = logging.Formatter(
+            "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+        )
+        handler.setFormatter(formatter)
+        root_logger.addHandler(handler)
+
+
 def create_app(config_class=None):
-    app = Flask(__name__, template_folder="templates")
+    project_root = os.path.dirname(os.path.dirname(__file__))
+    app = Flask(
+        __name__,
+        template_folder=os.path.join(project_root, "templates"),
+        static_folder=os.path.join(project_root, "static"),
+    )
 
     if config_class is None:
         env = ProductionConfig
@@ -13,6 +34,11 @@ def create_app(config_class=None):
         config_class = env
 
     app.config.from_object(config_class)
+
+    if app.config.get("DEBUG"):
+        configure_logging(level=logging.DEBUG)
+    else:
+        configure_logging(level=logging.INFO)
 
     from app.routes.api import api
     from app.routes.web import web
