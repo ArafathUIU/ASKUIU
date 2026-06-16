@@ -14,7 +14,8 @@ def test_build_context():
     assert "established in 2003" in context
 
 
-def test_generate_answer_without_api_key_raises():
-    generator = Generator(api_key=None)
+def test_generate_answer_without_api_key_raises(monkeypatch):
+    monkeypatch.delenv("OPENCODEGO_API_KEY", raising=False)
+    generator = Generator(api_key="")
     with pytest.raises(ValueError, match="OPENCODEGO_API_KEY"):
         generator.generate_answer([], "test query")

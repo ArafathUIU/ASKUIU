@@ -94,8 +94,8 @@ Edit `.env` and set your **Opencode Go API key**:
 ```env
 SECRET_KEY=your-secret-key-here
 OPENCODEGO_API_KEY=your-opencodego-api-key-here
-OPENCODEGO_BASE_URL=https://api.opencode.ai/v1
-OPENCODEGO_MODEL=opencode-go/kimi-k2.7-code
+OPENCODEGO_BASE_URL=https://opencode.ai/zen/go/v1
+OPENCODEGO_MODEL=kimi-k2.7-code
 ```
 
 > Replace `OPENCODEGO_BASE_URL` with the actual endpoint for your Opencode Go account.

@@ -9,8 +9,8 @@ class Config:
 
     # Opencode Go LLM configuration
     OPENCODEGO_API_KEY = os.getenv('OPENCODEGO_API_KEY')
-    OPENCODEGO_BASE_URL = os.getenv('OPENCODEGO_BASE_URL', 'https://api.opencode.ai/v1')
-    OPENCODEGO_MODEL = os.getenv('OPENCODEGO_MODEL', 'opencode-go/kimi-k2.7-code')
+    OPENCODEGO_BASE_URL = os.getenv('OPENCODEGO_BASE_URL', 'https://opencode.ai/zen/go/v1')
+    OPENCODEGO_MODEL = os.getenv('OPENCODEGO_MODEL', 'kimi-k2.7-code')
 
 class DevelopmentConfig(Config):
     DEBUG = True
