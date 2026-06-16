@@ -4,3 +4,5 @@ __pycache__/
 *.pyc
 venv/
 app/rag/data/article_embeddings.pkl
+flask_server.log
+flask_server.err

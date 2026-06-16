@@ -17,13 +17,11 @@ class Generator:
     ):
         self.api_key = api_key or os.getenv("OPENCODEGO_API_KEY")
         self.base_url = (
-            base_url or os.getenv("OPENCODEGO_BASE_URL", "https://api.opencode.ai/v1")
+            base_url or os.getenv("OPENCODEGO_BASE_URL", "https://opencode.ai/zen/go/v1")
         ).rstrip("/")
-        self.model = model or os.getenv(
-            "OPENCODEGO_MODEL", "opencode-go/kimi-k2.7-code"
-        )
+        self.model = model or os.getenv("OPENCODEGO_MODEL", "kimi-k2.7-code")
 
-    def generate_answer(self, retrieved_docs, query, max_tokens=300):
+    def generate_answer(self, retrieved_docs, query, max_tokens=1024):
         if not self.api_key:
             logger.error("OPENCODEGO_API_KEY is not configured")
             raise ValueError(
@@ -33,7 +31,7 @@ class Generator:
         return self._call_llm(query, context, max_tokens=max_tokens)
 
     @staticmethod
-    def _build_context(docs, max_tokens=1536):
+    def _build_context(docs, max_tokens=1024):
         processed_docs = []
         total_tokens = 0
         for doc in docs:
@@ -46,7 +44,7 @@ class Generator:
                 break
         return "\n".join(f"- {doc}" for doc in processed_docs)
 
-    def _call_llm(self, question, context, max_tokens=300):
+    def _call_llm(self, question, context, max_tokens=1024):
         prompt = f"""Use the following context to answer the question. If the context is insufficient, say:
 "Sorry, I don't have enough information to answer that yet."
 
@@ -83,7 +81,18 @@ Context:
                 )
                 response.raise_for_status()
                 data = response.json()
-                return data["choices"][0]["message"]["content"].strip()
+                message = data["choices"][0]["message"]
+                content = message.get("content", "").strip()
+
+                # Some reasoning models return an empty final content but populate
+                # reasoning_content. Fall back to it rather than showing nothing.
+                if not content:
+                    reasoning = message.get("reasoning_content", "").strip()
+                    if reasoning:
+                        logger.warning("LLM returned empty content; using reasoning_content fallback")
+                        return reasoning
+
+                return content
         except httpx.HTTPStatusError as e:
             logger.error(
                 "Opencode Go API HTTP error: %s - %s",

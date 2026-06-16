@@ -9,3 +9,5 @@ torch
 gunicorn
 pytest
 pytest-mock
+requests
+beautifulsoup4
