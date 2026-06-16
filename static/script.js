@@ -17,6 +17,7 @@
     const sidebarOverlay = document.getElementById('sidebar-overlay');
     const sidebarToggle = document.getElementById('sidebar-toggle');
     const yearSpan = document.getElementById('year');
+    const rocketLaunch = document.getElementById('rocket-launch');
 
     // State
     const STORAGE_KEY = 'askuiu-chats';
@@ -322,10 +323,24 @@
         });
     }
 
+    // ========== Rocket Launch Animation ==========
+    function launchRocket() {
+        if (!rocketLaunch) return;
+        rocketLaunch.classList.remove('launching');
+        // Force reflow to restart animation
+        void rocketLaunch.offsetWidth;
+        rocketLaunch.classList.add('launching');
+        setTimeout(() => {
+            rocketLaunch.classList.remove('launching');
+        }, 1200);
+    }
+
     // ========== Send Message ==========
     async function sendMessage() {
         const message = messageInput.value.trim();
         if (!message) return;
+
+        launchRocket();
 
         if (!activeChatId) {
             createNewChat(message);
