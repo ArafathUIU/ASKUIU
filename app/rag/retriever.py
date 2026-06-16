@@ -5,12 +5,10 @@ import faiss
 import numpy as np
 import pandas as pd
 import torch
-from transformers import AutoModel, AutoTokenizer
+from sentence_transformers import SentenceTransformer
 
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
-DEFAULT_CSV_PATH = os.path.join(
-    PROJECT_ROOT, "app", "rag", "data", "AskUIU-updated1 - Sheet1.csv"
-)
+DEFAULT_CSV_PATH = os.path.join(PROJECT_ROOT, "app", "rag", "data", "AskUIU.csv")
 DEFAULT_EMBEDDINGS_PATH = os.path.join(
     PROJECT_ROOT, "app", "rag", "data", "article_embeddings.pkl"
 )
@@ -23,16 +21,14 @@ class Retriever:
         embeddings_path=None,
         model_name="sentence-transformers/all-MiniLM-L6-v2",
     ):
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
         self.csv_path = csv_path or DEFAULT_CSV_PATH
         self.embeddings_path = embeddings_path or DEFAULT_EMBEDDINGS_PATH
 
         self.df = self._load_csv(self.csv_path)
         self.article_embeddings = self._load_embeddings(self.embeddings_path)
 
-        self.embedding_tokenizer = AutoTokenizer.from_pretrained(model_name)
-        self.embedding_model = AutoModel.from_pretrained(model_name).to(self.device)
+        self.device = "cuda" if torch.cuda.is_available() else "cpu"
+        self.embedding_model = SentenceTransformer(model_name).to(self.device)
 
         dimension = len(self.article_embeddings[0])
         self.index = faiss.IndexFlatL2(dimension)
@@ -53,7 +49,10 @@ class Retriever:
     @staticmethod
     def _load_embeddings(embeddings_path):
         if not os.path.exists(embeddings_path):
-            raise FileNotFoundError(f"Embeddings file not found at {embeddings_path}")
+            raise FileNotFoundError(
+                f"Embeddings file not found at {embeddings_path}. "
+                "Run 'python scripts/generate_embeddings.py' to create it."
+            )
         try:
             with open(embeddings_path, "rb") as f:
                 return pickle.load(f)
@@ -61,27 +60,18 @@ class Retriever:
             raise ValueError(f"Failed to load embeddings at {embeddings_path}: {e}")
 
     def generate_embeddings(self, text):
-        inputs = self.embedding_tokenizer(
-            text,
-            return_tensors="pt",
-            padding=True,
-            truncation=True,
-            max_length=512,
-        ).to(self.device)
-
-        with torch.no_grad():
-            outputs = self.embedding_model(**inputs)
-        return outputs.last_hidden_state.mean(dim=1).squeeze().cpu().numpy()
+        return self.embedding_model.encode(text, convert_to_numpy=True)
 
     def retrieve_data(self, query, category=None, field=None, k=3):
         query_embedding = self.generate_embeddings(query)
-        distances, indices = self.index.search(np.array([query_embedding]), k)
+        distances, indices = self.index.search(
+            query_embedding.reshape(1, -1).astype("float32"), k
+        )
         results = []
         for idx in indices[0]:
             if idx < len(self.df):
                 row = self.df.iloc[idx]
                 item = {"text": str(row.get("Text", "")), "index": int(idx)}
-                # Optional filters: include metadata if columns exist.
                 for col in ["Category", "Field"]:
                     if col in row:
                         item[col.lower()] = row[col]
