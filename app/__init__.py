@@ -40,6 +40,9 @@ def create_app(config_class=None):
     else:
         configure_logging(level=logging.INFO)
 
+    from app.rag.service import rag_service
+    rag_service.init_app(app)
+
     from app.routes.api import api
     from app.routes.web import web
 
@@ -47,3 +50,4 @@ def create_app(config_class=None):
     app.register_blueprint(web)
 
     return app
+

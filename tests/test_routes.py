@@ -37,3 +37,27 @@ def test_api_query_valid(client):
     data = response.get_json()
     assert data["response"] == "API answer"
     assert isinstance(data["sources"], list)
+    assert len(data["sources"]) > 0
+    # Check that rich metadata is preserved
+    first_source = data["sources"][0]
+    assert "title" in first_source
+    assert "source" in first_source
+    assert "category" in first_source
+
+
+def test_api_health(client):
+    response = client.get("/api/health")
+    assert response.status_code == 200
+    data = response.get_json()
+    assert data["status"] == "healthy"
+    assert "index_stats" in data
+    assert data["index_stats"]["total_documents"] > 0
+
+
+def test_api_stream(client):
+    response = client.get("/api/stream?query=What+is+UIU")
+    assert response.status_code == 200
+    assert response.mimetype == "text/event-stream"
+    assert b"data: " in response.data
+    assert b"\"type\": \"sources\"" in response.data
+    assert b"\"type\": \"done\"" in response.data
