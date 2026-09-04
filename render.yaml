@@ -5,7 +5,7 @@ services:
     plan: free
     branch: main
     buildCommand: bash build.sh
-    startCommand: gunicorn -c gunicorn.conf.py wsgi:app
+    startCommand: gunicorn --bind 0.0.0.0:$PORT -c gunicorn.conf.py wsgi:app
     healthCheckPath: /api/health
     envVars:
       - key: PYTHON_VERSION
