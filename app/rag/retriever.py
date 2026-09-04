@@ -5,11 +5,8 @@ import pickle
 import re
 from collections import Counter
 
-import faiss
 import numpy as np
 import pandas as pd
-import torch
-from sentence_transformers import SentenceTransformer
 
 logger = logging.getLogger(__name__)
 
@@ -85,6 +82,11 @@ class Retriever:
         self.embeddings_path = embeddings_path or DEFAULT_EMBEDDINGS_PATH
         self.model_name = model_name
 
+        import faiss
+        import torch
+        from sentence_transformers import SentenceTransformer
+
+        self.faiss = faiss
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
         logger.info("Initializing SentenceTransformer on device: %s", self.device)
         self.embedding_model = SentenceTransformer(self.model_name).to(self.device)
@@ -96,9 +98,9 @@ class Retriever:
 
         # Build normalized FAISS index for Cosine Similarity
         self.dimension = self.article_embeddings.shape[1]
-        self.index = faiss.IndexFlatIP(self.dimension)
+        self.index = self.faiss.IndexFlatIP(self.dimension)
         normalized_embs = self.article_embeddings.copy().astype(np.float32)
-        faiss.normalize_L2(normalized_embs)
+        self.faiss.normalize_L2(normalized_embs)
         self.index.add(normalized_embs)
 
         # Build BM25 index over documents
@@ -219,7 +221,7 @@ class Retriever:
 
         # Dense retrieval
         query_emb = self.generate_embeddings(search_query).reshape(1, -1).astype(np.float32)
-        faiss.normalize_L2(query_emb)
+        self.faiss.normalize_L2(query_emb)
         candidate_k = min(len(self.df), max(k * 5, 20))
         dense_scores, dense_indices = self.index.search(query_emb, candidate_k)
 

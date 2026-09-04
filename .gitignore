@@ -5,3 +5,4 @@ __pycache__/
 venv/
 flask_server.log
 flask_server.err
+.cache/

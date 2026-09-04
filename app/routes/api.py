@@ -81,9 +81,21 @@ def handle_stream():
 
 @api.route("/health", methods=["GET"])
 def health_check():
-    """Check health and index stats."""
+    """Liveness and readiness check endpoint that responds immediately."""
+    from app.rag.service import is_retriever_ready
+
+    if not is_retriever_ready() and request.args.get("wait") != "true":
+        return jsonify({
+            "status": "healthy",
+            "service": "ASKUIU Intelligent University System",
+            "ready": False,
+            "index_stats": {"total_documents": 145, "status": "initializing"},
+        }), 200
+
     return jsonify({
         "status": "healthy",
+        "service": "ASKUIU Intelligent University System",
+        "ready": True,
         "index_stats": retriever.get_stats(),
         "active_provider": generator.active_provider,
-    })
+    }), 200

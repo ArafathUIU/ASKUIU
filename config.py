@@ -3,6 +3,11 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
+project_hf_cache = os.path.join(PROJECT_ROOT, ".cache", "huggingface")
+if not os.getenv("HF_HOME") and os.path.exists(project_hf_cache):
+    os.environ["HF_HOME"] = project_hf_cache
+
 class Config:
     SECRET_KEY = os.getenv('SECRET_KEY', 'default-secret-key')
     FLASK_ENV = os.getenv('FLASK_ENV', 'development')

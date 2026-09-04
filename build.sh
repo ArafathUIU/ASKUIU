@@ -11,4 +11,8 @@ pip install torch --extra-index-url https://download.pytorch.org/whl/cpu
 echo "=== Installing dependencies from requirements.txt ==="
 pip install -r requirements.txt
 
+echo "=== Pre-downloading SentenceTransformer model into cache ==="
+export HF_HOME="${PWD}/.cache/huggingface"
+python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')"
+
 echo "=== Build complete ==="

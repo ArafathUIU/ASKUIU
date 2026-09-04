@@ -40,8 +40,11 @@ def create_app(config_class=None):
     else:
         configure_logging(level=logging.INFO)
 
-    from app.rag.service import rag_service
+    from app.rag.service import rag_service, warmup_async
     rag_service.init_app(app)
+
+    if not app.config.get("TESTING"):
+        warmup_async()
 
     from app.routes.api import api
     from app.routes.web import web
