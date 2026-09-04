@@ -69,7 +69,7 @@ class BM25Ranker:
 
 
 class Retriever:
-    """Intelligent hybrid retriever combining dense semantic embeddings and BM25 lexical search."""
+    """Intelligent lightweight hybrid retriever combining FastEmbed ONNX dense embeddings, NumPy cosine similarity, and BM25 lexical search."""
 
     def __init__(
         self,
@@ -82,33 +82,27 @@ class Retriever:
         self.embeddings_path = embeddings_path or DEFAULT_EMBEDDINGS_PATH
         self.model_name = model_name
 
-        import faiss
-        import torch
-        from sentence_transformers import SentenceTransformer
-
         try:
-            torch.set_num_threads(1)
-            torch.set_num_interop_threads(1)
-            torch.set_grad_enabled(False)
-        except Exception:
-            pass
-
-        self.faiss = faiss
-        self.device = "cuda" if torch.cuda.is_available() else "cpu"
-        logger.info("Initializing SentenceTransformer on device: %s", self.device)
-        self.embedding_model = SentenceTransformer(self.model_name).to(self.device)
+            from fastembed import TextEmbedding
+            self.model_backend = "fastembed"
+            logger.info("Initializing FastEmbed ONNX model: %s", self.model_name)
+            self.embedding_model = TextEmbedding(model_name=self.model_name)
+        except Exception as e:
+            logger.warning("FastEmbed unavailable (%s), trying sentence_transformers fallback", e)
+            from sentence_transformers import SentenceTransformer
+            self.model_backend = "sentence_transformers"
+            self.embedding_model = SentenceTransformer(self.model_name)
 
         self.df = self._load_csv(self.csv_path)
 
         # Load or auto-build embeddings
         self.article_embeddings = self._load_or_build_embeddings(auto_build=auto_build)
 
-        # Build normalized FAISS index for Cosine Similarity
+        # Pre-normalize embeddings for instant cosine similarity using pure NumPy
+        norms = np.linalg.norm(self.article_embeddings, axis=1, keepdims=True)
+        norms[norms == 0] = 1.0
+        self.normalized_embeddings = (self.article_embeddings / norms).astype(np.float32)
         self.dimension = self.article_embeddings.shape[1]
-        self.index = self.faiss.IndexFlatIP(self.dimension)
-        normalized_embs = self.article_embeddings.copy().astype(np.float32)
-        self.faiss.normalize_L2(normalized_embs)
-        self.index.add(normalized_embs)
 
         # Build BM25 index over documents
         corpus_texts = [
@@ -116,7 +110,11 @@ class Retriever:
             for _, row in self.df.iterrows()
         ]
         self.bm25 = BM25Ranker(corpus_texts)
-        logger.info("Retriever initialized with %d indexed documents", len(self.df))
+        logger.info(
+            "Retriever initialized with %d indexed documents using %s (NumPy cosine backend)",
+            len(self.df),
+            self.model_backend,
+        )
 
     def _load_csv(self, csv_path):
         if not os.path.exists(csv_path):
@@ -147,9 +145,12 @@ class Retriever:
 
         logger.info("Auto-building embeddings for %d documents...", len(self.df))
         texts = self.df["Text"].fillna("").astype(str).tolist()
-        embeddings = self.embedding_model.encode(
-            texts, convert_to_numpy=True, show_progress_bar=False
-        ).astype(np.float32)
+        if self.model_backend == "fastembed":
+            embeddings = np.array(list(self.embedding_model.embed(texts)), dtype=np.float32)
+        else:
+            embeddings = self.embedding_model.encode(
+                texts, convert_to_numpy=True, show_progress_bar=False
+            ).astype(np.float32)
 
         os.makedirs(os.path.dirname(self.embeddings_path), exist_ok=True)
         with open(self.embeddings_path, "wb") as f:
@@ -217,7 +218,13 @@ class Retriever:
         return q
 
     def generate_embeddings(self, text):
-        return self.embedding_model.encode(text, convert_to_numpy=True)
+        if self.model_backend == "fastembed":
+            query_input = [text] if isinstance(text, str) else list(text)
+            embs = list(self.embedding_model.embed(query_input))
+            arr = np.array(embs, dtype=np.float32)
+            return arr[0] if isinstance(text, str) else arr
+        else:
+            return self.embedding_model.encode(text, convert_to_numpy=True)
 
     def retrieve_data(self, query, category=None, field=None, k=4, hybrid=True, deduplicate_sources=True):
         """Retrieve top-k documents using Hybrid RRF (Dense + BM25) with query normalization and diverse source deduplication."""
@@ -226,14 +233,18 @@ class Retriever:
 
         search_query = self.normalize_and_expand_query(query)
 
-        # Dense retrieval
-        query_emb = self.generate_embeddings(search_query).reshape(1, -1).astype(np.float32)
-        self.faiss.normalize_L2(query_emb)
+        # Dense retrieval via NumPy dot product (normalized cosine similarity)
+        query_emb = self.generate_embeddings(search_query).astype(np.float32)
+        q_norm = np.linalg.norm(query_emb)
+        if q_norm > 0:
+            query_emb = query_emb / q_norm
+
+        dense_scores_all = np.dot(self.normalized_embeddings, query_emb)
         candidate_k = min(len(self.df), max(k * 5, 20))
-        dense_scores, dense_indices = self.index.search(query_emb, candidate_k)
+        top_dense_indices = np.argsort(dense_scores_all)[::-1][:candidate_k]
 
         dense_ranks = {}
-        for rank, idx in enumerate(dense_indices[0]):
+        for rank, idx in enumerate(top_dense_indices):
             if idx >= 0 and idx < len(self.df):
                 dense_ranks[int(idx)] = rank + 1
 
@@ -261,7 +272,7 @@ class Retriever:
                 rrf_scores.keys(), key=lambda i: rrf_scores[i], reverse=True
             )
         else:
-            sorted_indices = [int(i) for i in dense_indices[0] if i >= 0]
+            sorted_indices = [int(i) for i in top_dense_indices if i >= 0]
 
         # Filter and build rich metadata results with source deduplication
         results = []
@@ -291,9 +302,7 @@ class Retriever:
             }
 
             if idx in dense_ranks:
-                dense_pos = np.where(dense_indices[0] == idx)[0]
-                if len(dense_pos) > 0:
-                    item["confidence"] = round(float(dense_scores[0][dense_pos[0]]), 3)
+                item["confidence"] = round(float(dense_scores_all[idx]), 3)
             else:
                 item["confidence"] = 0.5
 
@@ -325,7 +334,6 @@ class Retriever:
                     break
 
         return results
-
 
     @staticmethod
     def process_context(docs, max_tokens=1536):
@@ -362,13 +370,13 @@ class Retriever:
 
         return "\n\n".join(processed_docs)
 
-
     def get_stats(self):
         """Return index statistics."""
         return {
             "total_documents": len(self.df),
             "categories": self.df["Category"].value_counts().to_dict() if "Category" in self.df else {},
             "embedding_dimension": self.dimension,
-            "device": self.device,
+            "device": "cpu",
             "model_name": self.model_name,
+            "backend": getattr(self, "model_backend", "fastembed"),
         }

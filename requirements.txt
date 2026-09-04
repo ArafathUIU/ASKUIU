@@ -1,12 +1,9 @@
---extra-index-url https://download.pytorch.org/whl/cpu
-torch
 flask
 python-dotenv
 pandas
-faiss-cpu
-sentence-transformers
 numpy
 httpx
+fastembed
 gunicorn
 pytest
 pytest-mock
