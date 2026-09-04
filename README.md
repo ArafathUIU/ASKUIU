@@ -196,7 +196,37 @@ Execute the complete test suite:
 python -m pytest -v
 ```
 
-All 14 tests covering hybrid retrieval, metadata retention, multi-provider fallbacks, SSE streaming, and health checks will run.
+All 17 tests covering hybrid retrieval, metadata retention, multi-provider fallbacks, Groq LPU, SSE streaming, and health checks will run.
+
+---
+
+## Deploy to Render
+
+ASKUIU is pre-configured for one-click deployment on [Render](https://render.com/).
+
+### Method 1: Render Blueprint (Automatic)
+1. Go to [Render Dashboard](https://dashboard.render.com/) and click **New +** $\rightarrow$ **Blueprint**.
+2. Connect your GitHub repository `ArafathUIU/ASKUIU`.
+3. Render will detect `render.yaml` and set up all build & start commands automatically.
+4. In the Environment Variables prompt, paste your `GROQ_API_KEY`.
+5. Click **Apply**.
+
+### Method 2: Manual Web Service
+1. In Render Dashboard, click **New +** $\rightarrow$ **Web Service**.
+2. Select your repository `ArafathUIU/ASKUIU`.
+3. Configure the following settings:
+   - **Environment**: `Python`
+   - **Build Command**: `bash build.sh`
+   - **Start Command**: `gunicorn -c gunicorn.conf.py wsgi:app`
+   - **Plan**: `Free`
+4. Under **Environment Variables**, add:
+   - `PYTHON_VERSION`: `3.11.5`
+   - `GROQ_API_KEY`: `your-groq-api-key`
+   - `LLM_PROVIDER`: `groq`
+   - `GROQ_MODEL`: `qwen/qwen3.8-27b`
+   - `WORKERS`: `1`
+   - `THREADS`: `4`
+5. Click **Create Web Service**.
 
 ---
 
