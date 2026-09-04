@@ -51,3 +51,15 @@ def create_app(config_class=None):
 
     return app
 
+
+_app_instance = None
+
+
+def __getattr__(name):
+    global _app_instance
+    if name == "app":
+        if _app_instance is None:
+            _app_instance = create_app()
+        return _app_instance
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+
