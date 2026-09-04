@@ -86,6 +86,13 @@ class Retriever:
         import torch
         from sentence_transformers import SentenceTransformer
 
+        try:
+            torch.set_num_threads(1)
+            torch.set_num_interop_threads(1)
+            torch.set_grad_enabled(False)
+        except Exception:
+            pass
+
         self.faiss = faiss
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
         logger.info("Initializing SentenceTransformer on device: %s", self.device)
