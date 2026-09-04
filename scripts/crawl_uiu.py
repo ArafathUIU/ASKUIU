@@ -32,6 +32,12 @@ SEED_URLS = [
     "https://www.uiu.ac.bd/about-uiu/guiding-principles/",
     "https://www.uiu.ac.bd/about-uiu/ranking-accreditation/",
     "https://www.uiu.ac.bd/authorities/",
+    "https://www.uiu.ac.bd/authorities/vice-chancellor/",
+    "https://www.uiu.ac.bd/authorities/pro-vice-chancellor/",
+    "https://www.uiu.ac.bd/authorities/treasurer/",
+    "https://www.uiu.ac.bd/authorities/registrar/",
+    "https://www.uiu.ac.bd/authorities/dean/",
+    "https://www.uiu.ac.bd/authorities/director-of-coordination/",
     "https://www.uiu.ac.bd/admission/",
     "https://www.uiu.ac.bd/admission/undergraduate-program/",
     "https://www.uiu.ac.bd/admission/graduate-program/",
@@ -47,6 +53,8 @@ SEED_URLS = [
     "https://www.uiu.ac.bd/academics/academic-information-policies/",
     "https://www.uiu.ac.bd/academics/calendar/",
     "https://www.uiu.ac.bd/academics/grading-performance-evaluation/",
+    "https://www.uiu.ac.bd/academics/proctorial-committee/",
+    "https://www.uiu.ac.bd/academics/probation-policy/",
     "https://www.uiu.ac.bd/research/",
     "https://www.uiu.ac.bd/research/lab-facilities/",
     "https://www.uiu.ac.bd/campus-life/",
@@ -54,8 +62,23 @@ SEED_URLS = [
     "https://www.uiu.ac.bd/campus-life/clubs-forums/",
     "https://www.uiu.ac.bd/campus-life/student-life/",
     "https://www.uiu.ac.bd/health-and-wellness/",
+    "https://www.uiu.ac.bd/uiu-transportation-service/",
     "https://www.uiu.ac.bd/contact-us/",
     "https://www.uiu.ac.bd/important-contact/",
+    "https://cse.uiu.ac.bd/",
+    "https://cse.uiu.ac.bd/about-cse/welcome-message/",
+    "https://eee.uiu.ac.bd/",
+    "https://eee.uiu.ac.bd/about-eee/welcome-message/",
+    "https://ce.uiu.ac.bd/",
+    "https://ce.uiu.ac.bd/about-ce/message-from-head/",
+    "https://pharmacy.uiu.ac.bd/",
+    "https://pharmacy.uiu.ac.bd/about/message-from-the-head/",
+    "https://english.uiu.ac.bd/",
+    "https://english.uiu.ac.bd/about/message-from-the-head/",
+    "https://datascience.uiu.ac.bd/",
+    "https://datascience.uiu.ac.bd/about-data-science/welcome-message/",
+    "https://sobe.uiu.ac.bd/",
+    "https://sobe.uiu.ac.bd/about-sobe/",
 ]
 
 # URL patterns we explicitly skip.
@@ -159,6 +182,7 @@ def extract_main_content(html, url):
     content_selectors = [
         "main#primary",
         "div.entry-content",
+        "div.main-content",
         "main",
         "article",
         "div.content-area",
@@ -174,12 +198,21 @@ def extract_main_content(html, url):
     if not content_elem:
         return title, ""
 
-    # Get paragraphs, headings, and list items.
+    # Get paragraphs, headings, list items, and tables.
     text_parts = []
-    for elem in content_elem.find_all(["p", "h1", "h2", "h3", "h4", "li"]):
-        text = elem.get_text(" ", strip=True)
-        if text:
-            text_parts.append(text)
+    for elem in content_elem.find_all(["p", "h1", "h2", "h3", "h4", "li", "table"]):
+        if elem.name == "table":
+            table_lines = []
+            for tr in elem.find_all("tr"):
+                cells = [c.get_text(" ", strip=True) for c in tr.find_all(["th", "td"])]
+                if cells:
+                    table_lines.append(" | ".join(cells))
+            if table_lines:
+                text_parts.append("\n".join(table_lines))
+        else:
+            text = elem.get_text(" ", strip=True)
+            if text:
+                text_parts.append(text)
 
     text = "\n".join(text_parts)
     return title, text

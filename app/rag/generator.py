@@ -79,7 +79,7 @@ class Generator:
 
         return "extractive_fallback"
 
-    def _build_context(self, docs: List[Dict], max_tokens: int = 1536) -> str:
+    def _build_context(self, docs: List[Dict], max_tokens: int = 768) -> str:
         processed_docs = []
         remaining_tokens = max_tokens
         for i, doc in enumerate(docs, 1):
@@ -310,26 +310,35 @@ class Generator:
         ]
 
         with httpx.Client(timeout=45.0) as client:
-            response = client.post(
-                f"{target_base_url}/chat/completions",
-                headers={
-                    "Authorization": f"Bearer {target_api_key}",
-                    "Content-Type": "application/json",
-                },
-                json={
-                    "model": target_model,
-                    "messages": messages,
-                    "max_tokens": max_tokens,
-                    "temperature": 0.1,
-                },
-            )
-            response.raise_for_status()
-            data = response.json()
-            choice = data["choices"][0]["message"]
-            content = choice.get("content", "").strip()
-            if not content:
-                content = choice.get("reasoning_content", "").strip()
-            return content or "Sorry, no response generated."
+            for attempt in range(2):
+                try:
+                    response = client.post(
+                        f"{target_base_url}/chat/completions",
+                        headers={
+                            "Authorization": f"Bearer {target_api_key}",
+                            "Content-Type": "application/json",
+                        },
+                        json={
+                            "model": target_model,
+                            "messages": messages,
+                            "max_tokens": max_tokens,
+                            "temperature": 0.1,
+                        },
+                    )
+                    response.raise_for_status()
+                    data = response.json()
+                    choice = data["choices"][0]["message"]
+                    content = choice.get("content", "").strip()
+                    if not content:
+                        content = choice.get("reasoning_content", "").strip()
+                    return content or "Sorry, no response generated."
+                except httpx.HTTPStatusError as e:
+                    if e.response.status_code == 429 and attempt == 0:
+                        retry_after = float(e.response.headers.get("retry-after", 2.0))
+                        logger.warning("Groq rate limit hit, backing off for %.1fs...", retry_after)
+                        time.sleep(min(retry_after, 3.0))
+                        continue
+                    raise
 
     def _stream_openai_compatible(
         self,
@@ -403,32 +412,34 @@ class Generator:
             return "Sorry, I do not have enough verified information from UIU records to answer that accurately."
 
         query_tokens = set(re.findall(r"\w+", query.lower()))
-        stop_words = {"what", "where", "who", "when", "how", "is", "are", "the", "at", "in", "for", "to", "of", "and", "a", "an"}
+        stop_words = {"what", "where", "who", "when", "how", "is", "are", "the", "at", "in", "for", "to", "of", "and", "a", "an", "does", "do", "tell", "me", "about"}
         keywords = query_tokens - stop_words
 
         best_sentence = ""
         best_overlap = -1
         best_doc_idx = 1
 
-        for i, doc in enumerate(docs[:3], 1):
+        for i, doc in enumerate(docs[:4], 1):
             text = doc.get("text", "")
-            # Split into sentences or lines
-            raw_sentences = re.split(r"(?<=[.!?])\s+", text)
+            raw_sentences = re.split(r"(?<=[.!?\n])\s+", text)
             for sentence in raw_sentences:
                 s = sentence.strip()
-                if len(s) < 20 or len(s) > 280:
+                s_clean = re.sub(r"^[#*\-\d.\s]+", "", s).strip()
+                if len(s_clean) < 20 or len(s_clean) > 300:
                     continue
-                s_tokens = set(re.findall(r"\w+", s.lower()))
+                s_tokens = set(re.findall(r"\w+", s_clean.lower()))
                 overlap = len(keywords.intersection(s_tokens))
                 if overlap > best_overlap:
                     best_overlap = overlap
-                    best_sentence = s
+                    best_sentence = s_clean
                     best_doc_idx = i
 
         if best_sentence:
-            return f"[{best_doc_idx}] {best_sentence}"
+            clean_s = best_sentence.rstrip(".")
+            return f"{clean_s} [{best_doc_idx}]."
 
-        # Fallback to direct snippet of top document
+        # Fallback to direct clean snippet of top document
         top_text = docs[0].get("text", "").strip()
-        short_snippet = top_text[:200] + ("..." if len(top_text) > 200 else "")
-        return f"[1] {short_snippet}"
+        first_line = top_text.splitlines()[0] if top_text else ""
+        first_line = re.sub(r"^[#*\-\d.\s]+", "", first_line).strip()[:200]
+        return f"{first_line} [1]."

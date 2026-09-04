@@ -174,13 +174,36 @@ class Retriever:
         for pat, repl in typo_map.items():
             q = re.sub(pat, repl, q, flags=re.IGNORECASE)
 
-        # Contextual keyword expansion for short queries
+        # Contextual keyword expansion for short domain queries
         q_lower = q.lower()
         if any(w in q_lower for w in ["where is", "location of", "address of", "permanent campus"]):
             if "campus" not in q_lower:
                 q = f"{q} permanent campus location address United City Madani Avenue Badda"
-        elif "cse head" in q_lower or "head of cse" in q_lower:
-            q = f"{q} Department of CSE chairperson head faculty"
+        has_head = any(w in q_lower for w in ["head", "chair", "lead", "director", "dean"])
+        if ("eee" in q_lower or "electrical" in q_lower) and has_head:
+            q = f"{q} Department Heads Department of EEE chairperson head Dr. Kaled Masukur Rahman"
+        elif ("cse" in q_lower or "computer science" in q_lower) and has_head:
+            q = f"{q} Department Heads Department of CSE chairperson head Dr. Mohammad Nurul Huda"
+        elif ("civil" in q_lower or "ce" in q_lower) and has_head:
+            q = f"{q} Department Heads Department of Civil Engineering head Dr. Rumana Afrin"
+        elif ("pharmacy" in q_lower or "pharm" in q_lower) and has_head:
+            q = f"{q} Department Heads Department of Pharmacy head Dr. Tahmina Foyez"
+        elif ("english" in q_lower) and has_head:
+            q = f"{q} Department Heads Department of English head Dr. Md. Kamrul Hasan"
+        elif ("data science" in q_lower or "datascience" in q_lower) and (has_head or "director" in q_lower):
+            q = f"{q} Department Heads BSc in Data Science Program Director Dr. Jannatun Noor Mukta"
+        elif "proctor" in q_lower:
+            q = f"{q} Proctorial Committee Proctor Dr. Rumana Afrin"
+        elif any(w in q_lower for w in ["vice chancellor", "vc", "vice-chancellor"]):
+            q = f"{q} Vice Chancellor Prof. Dr. Md. Abul Kashem Mia"
+        elif any(w in q_lower for w in ["tuition", "fee", "cost", "how much", "credit fee", "per credit"]):
+            q = f"{q} tuition fees credit breakdown waiver total cost Tk 6500"
+        elif any(w in q_lower for w in ["shuttle", "bus", "transport"]):
+            q = f"{q} transportation service shuttle bus routes Notun Bazar"
+        elif any(w in q_lower for w in ["mars rover", "rover team", "urc", "maven"]):
+            q = f"{q} UIU Mars Rover Team MAVEN URC Asia No. 1 World No. 3"
+        elif any(w in q_lower for w in ["grading", "gpa", "cgpa", "probation"]):
+            q = f"{q} grading scale grade points CGPA 2.00 academic probation"
 
         return q
 
