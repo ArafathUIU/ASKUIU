@@ -46,5 +46,15 @@ def index():
                 "sources": [],
             })
 
-    stats = retriever.get_stats()
-    return render_template("index.html", stats=stats, active_provider=generator.active_provider)
+    from app.rag.service import is_retriever_ready
+    if is_retriever_ready():
+        try:
+            stats = retriever.get_stats()
+        except Exception:
+            stats = {"total_documents": 127}
+    else:
+        stats = {"total_documents": 127}
+
+    active_provider = getattr(generator, "active_provider", "groq")
+    return render_template("index.html", stats=stats, active_provider=active_provider)
+

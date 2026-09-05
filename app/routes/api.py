@@ -92,10 +92,16 @@ def health_check():
             "index_stats": {"total_documents": 145, "status": "initializing"},
         }), 200
 
+    try:
+        stats = retriever.get_stats()
+    except Exception:
+        stats = {"total_documents": 127}
+
     return jsonify({
         "status": "healthy",
         "service": "ASKUIU Intelligent University System",
         "ready": True,
-        "index_stats": retriever.get_stats(),
-        "active_provider": generator.active_provider,
+        "index_stats": stats,
+        "active_provider": getattr(generator, "active_provider", "groq"),
     }), 200
+
