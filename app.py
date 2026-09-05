@@ -21,7 +21,8 @@ def find_available_port(preferred_port=5050):
 
 if __name__ == "__main__":
     env_port = os.getenv("PORT")
-    port = int(env_port) if env_port else find_available_port(5050)
-    host = os.getenv("HOST", "0.0.0.0" if env_port else "127.0.0.1")
-    print(f"=== ASKUIU Intelligence System running on http://{host}:{port} ===")
+    port = int(env_port) if env_port else 5000
+    host = "0.0.0.0"
+    print(f"=== ASKUIU Intelligence System running on http://{host}:{port} ===", flush=True)
     app.run(host=host, port=port, debug=False, use_reloader=False)
+
