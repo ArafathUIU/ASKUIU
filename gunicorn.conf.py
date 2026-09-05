@@ -1,3 +1,5 @@
+import os
+
 env_port = os.getenv("PORT")
 bind = []
 if env_port:
