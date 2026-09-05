@@ -1,5 +1,6 @@
 import logging
 import threading
+import time
 from typing import TYPE_CHECKING, Any, Optional
 
 if TYPE_CHECKING:
@@ -42,6 +43,7 @@ def is_retriever_ready() -> bool:
 def warmup_async():
     """Warm up retriever and generator in a background thread after server starts."""
     def _warmup():
+        time.sleep(1.5)
         try:
             logger.info("Background warmup: initializing retriever and generator...")
             get_retriever()
@@ -52,6 +54,7 @@ def warmup_async():
 
     t = threading.Thread(target=_warmup, daemon=True, name="rag-warmup")
     t.start()
+
 
 
 class RAGService:

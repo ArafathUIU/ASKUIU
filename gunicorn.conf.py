@@ -8,8 +8,8 @@ bind.extend(["0.0.0.0:10000", "0.0.0.0:5000", "0.0.0.0:8000"])
 bind = list(dict.fromkeys(bind))
 
 workers = int(os.getenv("WORKERS", "1"))
-threads = int(os.getenv("THREADS", "2"))
-worker_class = "gthread"
+threads = 1
+worker_class = "sync"
 timeout = int(os.getenv("TIMEOUT", "120"))
 preload_app = False
 keepalive = 5
