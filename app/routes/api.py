@@ -22,6 +22,14 @@ def handle_query():
     if not query:
         return jsonify({"error": "No query provided"}), 400
 
+    if generator.is_greeting(query):
+        return jsonify({
+            "response": generator.greeting_response(),
+            "sources": [],
+            "provider": generator.active_provider,
+            "latency_seconds": 0.001,
+        })
+
     start_time = time.time()
     try:
         retrieved = retriever.retrieve_data(query, category=category, field=field, k=k)
@@ -51,6 +59,23 @@ def handle_stream():
 
     if not query:
         return jsonify({"error": "No query provided"}), 400
+
+    if generator.is_greeting(query):
+        def generate_greeting_events():
+            yield f"data: {json.dumps({'type': 'sources', 'sources': [], 'provider': generator.active_provider})}\n\n"
+            for token in generator.stream_answer([], query):
+                yield f"data: {json.dumps({'type': 'token', 'content': token})}\n\n"
+            yield f"data: {json.dumps({'type': 'done'})}\n\n"
+
+        return Response(
+            generate_greeting_events(),
+            mimetype="text/event-stream",
+            headers={
+                "Cache-Control": "no-cache",
+                "X-Accel-Buffering": "no",
+                "Connection": "keep-alive",
+            },
+        )
 
     def generate_events():
         try:

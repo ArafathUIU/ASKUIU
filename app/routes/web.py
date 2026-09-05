@@ -25,6 +25,13 @@ def index():
         if not user_question:
             return jsonify({"response": "Please enter a valid question.", "sources": []})
 
+        if generator.is_greeting(user_question):
+            return jsonify({
+                "response": generator.greeting_response(),
+                "sources": [],
+                "provider": generator.active_provider,
+            })
+
         try:
             retrieved = retriever.retrieve_data(user_question, category=category, k=3)
             answer = generator.generate_answer(retrieved, user_question)

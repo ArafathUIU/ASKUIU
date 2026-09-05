@@ -124,10 +124,36 @@ class Generator:
             "Never guess or fabricate facts, tuition amounts, or faculty names."
         )
 
+    @staticmethod
+    def is_greeting(query: str) -> bool:
+        """Detect conversational greetings and introductory questions."""
+        if not query:
+            return False
+        q = re.sub(r"[!?,.\-_]+", "", query).strip().lower()
+        greetings = {
+            "hi", "hello", "hey", "hola", "greetings", "good morning",
+            "good afternoon", "good evening", "assalamu alaikum", "assalamualaikum",
+            "salam", "hi there", "hello there", "hey there", "who are you",
+            "what can you do", "help", "howdy", "hiya", "welcome",
+        }
+        return q in greetings
+
+    @staticmethod
+    def greeting_response() -> str:
+        """Return a helpful, welcoming response for conversational greetings."""
+        return (
+            "Hello! I am **ASKUIU**, the official AI intelligence assistant for United International University. "
+            "You can ask me anything about undergraduate and graduate programs, admission requirements, tuition fees, scholarships, department leadership, or campus facilities. "
+            "How can I help you today?"
+        )
+
     def generate_answer(
         self, retrieved_docs: List[Dict], query: str, max_tokens: int = 512
     ) -> str:
         """Generate an accurate and concise answer using the active LLM provider or fallback."""
+        if self.is_greeting(query):
+            return self.greeting_response()
+
         if self.active_provider == "opencodego" and not self.opencodego_key:
             raise ValueError(
                 "OPENCODEGO_API_KEY not found. Set it in your environment or .env file."
@@ -169,6 +195,13 @@ class Generator:
         self, retrieved_docs: List[Dict], query: str, max_tokens: int = 512
     ) -> PyGenerator[str, None, None]:
         """Stream concise answer tokens in real-time."""
+        if self.is_greeting(query):
+            response = self.greeting_response()
+            words = response.split(" ")
+            for i, word in enumerate(words):
+                yield word + (" " if i < len(words) - 1 else "")
+            return
+
         if not retrieved_docs:
             yield "Sorry, I couldn't find any relevant university documents matching your question."
             return
