@@ -13,9 +13,11 @@ services:
       - key: WORKERS
         value: "1"
       - key: THREADS
-        value: "4"
+        value: "2"
       - key: TIMEOUT
         value: "120"
+      - key: FASTEMBED_CACHE_PATH
+        value: ./.cache/fastembed
       - key: LLM_PROVIDER
         value: groq
       - key: GROQ_MODEL

@@ -4,9 +4,15 @@ from dotenv import load_dotenv
 load_dotenv()
 
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
+project_fastembed_cache = os.path.join(PROJECT_ROOT, ".cache", "fastembed")
+os.makedirs(project_fastembed_cache, exist_ok=True)
+if not os.getenv("FASTEMBED_CACHE_PATH"):
+    os.environ["FASTEMBED_CACHE_PATH"] = project_fastembed_cache
+
 project_hf_cache = os.path.join(PROJECT_ROOT, ".cache", "huggingface")
 if not os.getenv("HF_HOME") and os.path.exists(project_hf_cache):
     os.environ["HF_HOME"] = project_hf_cache
+
 
 class Config:
     SECRET_KEY = os.getenv('SECRET_KEY', 'default-secret-key')

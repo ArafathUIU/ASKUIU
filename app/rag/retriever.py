@@ -82,16 +82,27 @@ class Retriever:
         self.embeddings_path = embeddings_path or DEFAULT_EMBEDDINGS_PATH
         self.model_name = model_name
 
+        cache_dir = os.getenv("FASTEMBED_CACHE_PATH")
+        if not cache_dir:
+            cache_dir = os.path.join(PROJECT_ROOT, ".cache", "fastembed")
+        os.makedirs(cache_dir, exist_ok=True)
+
         try:
             from fastembed import TextEmbedding
             self.model_backend = "fastembed"
-            logger.info("Initializing FastEmbed ONNX model: %s", self.model_name)
-            self.embedding_model = TextEmbedding(model_name=self.model_name)
+            logger.info("Initializing FastEmbed ONNX model: %s (cache: %s, threads: 1)", self.model_name, cache_dir)
+            self.embedding_model = TextEmbedding(model_name=self.model_name, cache_dir=cache_dir, threads=1)
         except Exception as e:
-            logger.warning("FastEmbed unavailable (%s), trying sentence_transformers fallback", e)
-            from sentence_transformers import SentenceTransformer
-            self.model_backend = "sentence_transformers"
-            self.embedding_model = SentenceTransformer(self.model_name)
+            logger.warning("FastEmbed ONNX failed (%s), attempting sentence_transformers fallback...", e)
+            try:
+                from sentence_transformers import SentenceTransformer
+                self.model_backend = "sentence_transformers"
+                self.embedding_model = SentenceTransformer(self.model_name)
+            except Exception as st_err:
+                raise RuntimeError(
+                    f"Failed to initialize embedding model '{self.model_name}' via FastEmbed ({e}) "
+                    f"and fallback ({st_err})."
+                ) from e
 
         self.df = self._load_csv(self.csv_path)
 
